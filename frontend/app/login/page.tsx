@@ -1,8 +1,10 @@
+import Form from "../components/login/form"
+
 const Login = () => {
     return(
-        <>
-        <h1>Login View</h1>
-        </>
+        <div className="relative overflow-hidden">
+        <Form />
+        </div>
     )
 }
 

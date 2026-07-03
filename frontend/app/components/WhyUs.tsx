@@ -54,7 +54,7 @@ export default function WhyUs() {
           <div className="w-full lg:w-1/2">
             <div className="relative h-[500px] w-full rounded-[2rem] overflow-hidden shadow-2xl shadow-[#4E342E]/20 group">
               <Image 
-                src="/images/hero-1.png" 
+                src="/images/toko.jpg" 
                 alt="Kenapa Memilih Kami" 
                 fill 
                 className="object-cover group-hover:scale-105 transition duration-700 ease-in-out"
