@@ -26,7 +26,7 @@ export default function RootLayout({
     <html
       lang="en"
     >
-      <body>{children}</body>
+      <body className="bg-[#EFECE7]">{children}</body>
     </html>
   );
 }
