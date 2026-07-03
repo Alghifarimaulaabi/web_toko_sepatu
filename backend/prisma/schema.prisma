@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  nama       String
+  email      String   @unique
+  password   String
+  role       Role     @default(USER)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Kategori {
+  id             Int      @id @default(autoincrement())
+  nama_kategori  String
+
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  produk         Produk[]
+}
+
+model Produk {
+  id            Int      @id @default(autoincrement())
+
+  kategori_id   Int
+
+  nama_produk   String
+  deskripsi     String
+  harga         Decimal
+  stok          Int
+  gambar        String
+
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  kategori       Kategori       @relation(fields: [kategori_id], references: [id])
+  detailPesanan  DetailPesanan[]
+}
+
+model Pesanan {
+  id                   Int      @id @default(autoincrement())
+
+  kode_pesanan         String   @unique
+
+  nama_penerima        String
+  email                String?
+  no_hp                String
+
+  alamat               String
+  kota                 String
+  provinsi             String
+  kode_pos             String
+
+  total_harga          Decimal
+
+  metode_pembayaran    String
+
+  status               String
+
+  tanggal_pesanan      DateTime @default(now())
+
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+
+  detailPesanan        DetailPesanan[]
+  testimoni            Testimoni[]
+}
+
+model DetailPesanan {
+  id           Int @id @default(autoincrement())
+
+  pesanan_id   Int
+  produk_id    Int
+
+  jumlah       Int
+  harga        Decimal
+  subtotal     Decimal
+
+  pesanan      Pesanan @relation(fields: [pesanan_id], references: [id])
+  produk       Produk  @relation(fields: [produk_id], references: [id])
+}
+
+model Testimoni {
+  id            Int      @id @default(autoincrement())
+
+  pesanan_id    Int
+
+  nama          String
+  rating        Int
+  komentar      String
+
+  created_at    DateTime @default(now())
+
+  pesanan       Pesanan @relation(fields: [pesanan_id], references: [id])
+}
