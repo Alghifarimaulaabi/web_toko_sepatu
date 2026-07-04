@@ -11,6 +11,7 @@ import {
   Mail,
   Lock,
   UserPlus,
+  User,
   Eye,
   EyeOff,
   AlertCircle,
@@ -20,19 +21,26 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-// Zod schema for login validation
-const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email wajib diisi")
-    .email("Format email tidak valid"),
-  password: z
-    .string()
-    .min(1, "Password wajib diisi")
-    .min(6, "Password minimal 6 karakter"),
-});
+// Zod schema for register validation
+const registerSchema = z
+  .object({
+    name: z.string().min(1, "Nama wajib diisi").min(3, "Nama minimal 3 karakter"),
+    email: z
+      .string()
+      .min(1, "Email wajib diisi")
+      .email("Format email tidak valid"),
+    password: z
+      .string()
+      .min(1, "Password wajib diisi")
+      .min(6, "Password minimal 6 karakter"),
+    confirmPassword: z.string().min(1, "Konfirmasi password wajib diisi"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Password tidak cocok",
+    path: ["confirmPassword"],
+  });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 // Animation variants
 const containerVariants = {
@@ -40,7 +48,7 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.08,
+      staggerChildren: 0.07,
       delayChildren: 0.2,
     },
   },
@@ -51,26 +59,28 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
 };
 
-export default function Form() {
+export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const router = useRouter();
 
   const {
-    register,
+    register: registerField,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: RegisterFormData) => {
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          name: data.name,
           email: data.email,
           password: data.password,
         }),
@@ -79,17 +89,13 @@ export default function Form() {
       const result = await res.json();
 
       if (!res.ok) {
-        toast.error(result.message || "Login gagal");
+        toast.error(result.message || "Registrasi gagal");
         return;
       }
 
-      // Save to localStorage
-      localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
-
-      toast.success(result.message || "Login berhasil!");
+      toast.success(result.message || "Registrasi berhasil!");
       setTimeout(() => {
-        router.push("/");
+        router.push("/auth/login");
       }, 1000);
     } catch (error) {
       toast.error("Terjadi kesalahan pada jaringan");
@@ -135,7 +141,7 @@ export default function Form() {
 
       {/* Card */}
       <motion.div
-        className="w-96 rounded-3xl bg-white/95 backdrop-blur-md p-8 shadow-2xl shadow-[#3E2723]/15 border border-white/50 relative z-10"
+        className="w-96 rounded-3xl bg-white/95 backdrop-blur-md p-8 shadow-2xl shadow-[#3E2723]/15 border border-white/50 relative z-10 my-8"
         initial={{ scale: 0.85, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         transition={{ type: "spring", damping: 25, stiffness: 200, delay: 0.1 }}
@@ -153,29 +159,52 @@ export default function Form() {
           {/* Tabs */}
           <motion.div className="mb-8 flex justify-center" variants={itemVariants}>
             <div className="relative flex h-12 w-72 items-center rounded-full bg-[#EFECE7] p-1">
-              {/* Active indicator */}
+              {/* Active indicator on Register side */}
               <motion.div
-                className="absolute left-1 top-1 h-10 w-[calc(50%-4px)] rounded-full bg-gradient-to-r from-[#5D4037] to-[#8D6E63] shadow-md"
+                className="absolute right-1 top-1 h-10 w-[calc(50%-4px)] rounded-full bg-gradient-to-r from-[#5D4037] to-[#8D6E63] shadow-md"
                 layoutId="tab-indicator"
               />
 
-              <div className="z-10 flex w-1/2 cursor-pointer items-center justify-center gap-2 font-semibold text-white">
+              <Link
+                href="/auth/login"
+                className="z-10 flex w-1/2 cursor-pointer items-center justify-center gap-2 font-semibold text-[#5D4037] hover:text-[#3E2723] transition"
+              >
                 <DoorClosed size={18} />
                 Login
-              </div>
+              </Link>
 
-              <Link
-                href="/auth/register"
-                className="z-10 flex w-1/2 items-center justify-center gap-2 font-semibold text-[#5D4037] hover:text-[#3E2723] transition"
-              >
+              <div className="z-10 flex w-1/2 items-center justify-center gap-2 font-semibold text-white">
                 <UserPlus size={18} />
                 Register
-              </Link>
+              </div>
             </div>
           </motion.div>
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+
+            {/* Name */}
+            <motion.div variants={itemVariants}>
+              <div className={`flex items-center rounded-xl border-2 px-4 py-3.5 transition-all ${errors.name ? 'border-red-400 bg-red-50/50' : 'border-[#D7CCC8] focus-within:border-[#8D6E63] bg-white'}`}>
+                <User className={`mr-3 ${errors.name ? 'text-red-400' : 'text-[#8D6E63]'}`} size={20} />
+                <input
+                  type="text"
+                  placeholder="Nama Lengkap"
+                  className="w-full outline-none bg-transparent text-[#3E2723] placeholder:text-gray-400"
+                  {...registerField("name")}
+                />
+              </div>
+              {errors.name && (
+                <motion.p
+                  className="mt-1.5 flex items-center gap-1 text-sm text-red-500 pl-1"
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <AlertCircle size={14} />
+                  {errors.name.message}
+                </motion.p>
+              )}
+            </motion.div>
 
             {/* Email */}
             <motion.div variants={itemVariants}>
@@ -185,7 +214,7 @@ export default function Form() {
                   type="email"
                   placeholder="Email"
                   className="w-full outline-none bg-transparent text-[#3E2723] placeholder:text-gray-400"
-                  {...register("email")}
+                  {...registerField("email")}
                 />
               </div>
               {errors.email && (
@@ -208,7 +237,7 @@ export default function Form() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   className="w-full outline-none bg-transparent text-[#3E2723] placeholder:text-gray-400"
-                  {...register("password")}
+                  {...registerField("password")}
                 />
                 <button
                   type="button"
@@ -230,11 +259,34 @@ export default function Form() {
               )}
             </motion.div>
 
-            {/* Forgot password */}
-            <motion.div className="flex justify-end" variants={itemVariants}>
-              <Link href="#" className="text-sm text-[#8D6E63] hover:text-[#5D4037] font-medium hover:underline transition">
-                Lupa password?
-              </Link>
+            {/* Confirm Password */}
+            <motion.div variants={itemVariants}>
+              <div className={`flex items-center rounded-xl border-2 px-4 py-3.5 transition-all ${errors.confirmPassword ? 'border-red-400 bg-red-50/50' : 'border-[#D7CCC8] focus-within:border-[#8D6E63] bg-white'}`}>
+                <Lock className={`mr-3 ${errors.confirmPassword ? 'text-red-400' : 'text-[#8D6E63]'}`} size={20} />
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Konfirmasi Password"
+                  className="w-full outline-none bg-transparent text-[#3E2723] placeholder:text-gray-400"
+                  {...registerField("confirmPassword")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="ml-2 text-gray-400 hover:text-[#5D4037] transition"
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+              {errors.confirmPassword && (
+                <motion.p
+                  className="mt-1.5 flex items-center gap-1 text-sm text-red-500 pl-1"
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <AlertCircle size={14} />
+                  {errors.confirmPassword.message}
+                </motion.p>
+              )}
             </motion.div>
 
             {/* Button */}
@@ -256,7 +308,7 @@ export default function Form() {
                     Memproses...
                   </span>
                 ) : (
-                  "Login"
+                  "Daftar"
                 )}
               </motion.button>
             </motion.div>
@@ -271,12 +323,12 @@ export default function Form() {
 
           {/* Footer */}
           <motion.p className="text-center text-sm text-gray-500" variants={itemVariants}>
-            Belum punya akun?{" "}
+            Sudah punya akun?{" "}
             <Link
-              href="/auth/register"
+              href="/auth/login"
               className="font-semibold text-[#5D4037] hover:underline"
             >
-              Daftar Sekarang
+              Login Disini
             </Link>
           </motion.p>
 

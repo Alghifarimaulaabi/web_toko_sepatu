@@ -33,7 +33,7 @@ export default function TrendingCard() {
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-[#3E2723] text-center md:text-left">Trending Produk</h2>
           </div>
-          <Link href="#" className="bg-white px-6 py-3 rounded-full shadow-sm text-[#5D4037] hover:bg-[#3E2723] hover:text-white transition font-medium border border-[#D7CCC8]/50">
+          <Link href="/trending" className="bg-white px-6 py-3 rounded-full shadow-sm text-[#5D4037] hover:bg-[#3E2723] hover:text-white transition font-medium border border-[#D7CCC8]/50">
             Lihat Lebih banyak
           </Link>
         </div>
@@ -78,9 +78,9 @@ export default function TrendingCard() {
                 </div>
 
                 <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition duration-300">
-                  <button className="flex-1 rounded-xl bg-[#8D6E63] py-3.5 px-4 font-bold text-white hover:bg-[#5D4037] transition shadow-lg">
+                  <Link href={`/produk/${product.id}`} className="flex-1 flex justify-center items-center rounded-xl bg-[#8D6E63] py-3.5 px-4 font-bold text-white hover:bg-[#5D4037] transition shadow-lg">
                     Beli Sekarang
-                  </button>
+                  </Link>
                   <button className="rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm p-3.5 text-white hover:bg-white/20 transition">
                     <ShoppingBag size={20} />
                   </button>

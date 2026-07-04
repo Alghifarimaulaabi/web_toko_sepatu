@@ -42,7 +42,7 @@ export default function ProductCarousel() {
             <h2 className="text-3xl md:text-4xl font-bold text-[#3E2723]">Produk Pilihan</h2>
             <p className="text-[#8D6E63] mt-2 text-lg">Koleksi sepatu terbaik untuk gaya dan kenyamanan Anda.</p>
           </div>
-          <Link href="#" className="hidden md:flex items-center gap-2 text-[#5D4037] hover:text-[#3E2723] transition font-semibold group">
+          <Link href="/produk-pilihan" className="hidden md:flex items-center gap-2 text-[#5D4037] hover:text-[#3E2723] transition font-semibold group">
             Lihat Lebih banyak
             <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
           </Link>
@@ -75,10 +75,10 @@ export default function ProductCarousel() {
                 <h3 className="font-bold text-xl text-[#3E2723] mb-1 line-clamp-1">{product.title}</h3>
                 <p className="text-[#8D6E63] font-semibold text-lg mb-5">{product.price}</p>
                 
-                <button className="w-full flex items-center justify-center gap-2 bg-[#5D4037] hover:bg-[#3E2723] text-white py-3.5 rounded-xl transition duration-300 font-semibold shadow-md shadow-[#5D4037]/20">
+                <Link href={`/produk/${product.id}`} className="w-full flex items-center justify-center gap-2 bg-[#5D4037] hover:bg-[#3E2723] text-white py-3.5 rounded-xl transition duration-300 font-semibold shadow-md shadow-[#5D4037]/20">
                   <ShoppingBag size={20} />
                   Beli Sekarang
-                </button>
+                </Link>
               </div>
             </div>
           ))}
@@ -86,7 +86,7 @@ export default function ProductCarousel() {
         
         {/* Mobile See More Link */}
         <div className="mt-4 flex justify-center md:hidden">
-            <Link href="#" className="flex items-center gap-2 text-[#5D4037] hover:text-[#3E2723] transition font-semibold group bg-white px-6 py-3 rounded-full shadow-sm">
+            <Link href="/produk-pilihan" className="flex items-center gap-2 text-[#5D4037] hover:text-[#3E2723] transition font-semibold group bg-white px-6 py-3 rounded-full shadow-sm">
                 Lihat Lebih banyak
                 <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </Link>
