@@ -7,18 +7,26 @@ import Navbar from "../../components/navbar";
 import Footer from "../../components/Footer";
 import LoginModal from "../../components/LoginModal";
 import { Heart, ShoppingBag, Star, ArrowLeft, Truck, ShieldCheck, Undo2 } from "lucide-react";
+import { useWishlist } from "../../context/WishlistContext";
+import { useCart } from "../../context/CartContext";
+import { toast } from "sonner";
+
+import { getProductById } from "../../data/products";
 
 // Mock data lookup (in a real app, you would fetch this from an API)
 const getProductDetails = (id: string) => {
+  const numId = Number(id);
+  const productData = getProductById(numId);
+  
   // Common details for mock
   return {
-    id,
-    title: "Nike Premium Collection " + id,
-    price: "Rp. " + (Math.floor(Math.random() * 3) + 2) + ",500,000",
-    rating: "4.8",
+    id: numId,
+    title: productData?.title || "Nike Premium Collection " + id,
+    price: productData?.price || "Rp. " + (Math.floor(Math.random() * 3) + 2) + ",500,000",
+    rating: productData?.rating || "4.8",
     reviews: 124,
-    description: "Koleksi sepatu premium dari Nike dengan teknologi bantalan udara terbaru untuk kenyamanan maksimal sepanjang hari. Desain modern dan material berkualitas tinggi memastikan daya tahan dan gaya yang tak lekang oleh waktu.",
-    image: "/images/nike-2.jpeg",
+    description: productData?.description || "Koleksi sepatu premium dari Nike dengan teknologi bantalan udara terbaru untuk kenyamanan maksimal sepanjang hari. Desain modern dan material berkualitas tinggi memastikan daya tahan dan gaya yang tak lekang oleh waktu.",
+    image: productData?.image || "/images/nike-2.jpeg",
     colors: [
       { name: "Hitam/Putih", code: "bg-gray-900" },
       { name: "Biru/Merah", code: "bg-blue-600" },
@@ -32,6 +40,8 @@ const getProductDetails = (id: string) => {
 export default function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const product = getProductDetails(id);
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const { addToCart } = useCart();
   
   const [selectedColor, setSelectedColor] = useState(product.colors[0]);
   const [selectedSize, setSelectedSize] = useState("42");
@@ -45,7 +55,11 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
       setShowLoginModal(true);
     } else {
       if (action === 'cart') {
-        alert("Berhasil ditambahkan ke keranjang");
+        const productData = getProductById(Number(id));
+        if (productData) {
+          addToCart(productData, quantity);
+          toast.success(`${productData.title} ditambahkan ke keranjang!`);
+        }
       } else {
         alert("Melanjutkan ke pembayaran...");
       }
@@ -83,8 +97,17 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                 
                 {/* Overlay gradient & Heart */}
                 <div className="absolute top-4 right-4 z-10">
-                  <button className="p-3 bg-white/90 backdrop-blur-sm rounded-full text-[#8D6E63] hover:text-red-500 hover:scale-110 transition shadow-sm">
-                    <Heart size={24} />
+                  <button 
+                    onClick={() => {
+                      if (product) {
+                        toggleWishlist(product as any);
+                      }
+                    }}
+                    className={`p-3 bg-white/90 backdrop-blur-sm rounded-full transition shadow-sm ${
+                      product && isInWishlist(product.id) ? "text-red-500" : "text-[#8D6E63] hover:text-red-500 hover:scale-110"
+                    }`}
+                  >
+                    <Heart size={24} className={product && isInWishlist(product.id) ? "fill-red-500" : ""} />
                   </button>
                 </div>
               </div>
@@ -216,6 +239,8 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
             </div>
           </div>
         </div>
+              {/* Ulasan */}
+
       </section>
 
       <Footer />

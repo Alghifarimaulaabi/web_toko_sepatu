@@ -1,25 +1,14 @@
+"use client";
+
 import Image from "next/image";
 import { Heart, ShoppingBag, Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
-
-const products = [
-  {
-    id: 1,
-    image: "/images/nike-2.jpeg",
-    title: "Nike Air Jordan Force",
-    price: "Rp. 4,500,000",
-    rating: "5.0",
-  },
-  {
-    id: 2,
-    image: "/images/sepatu-1.jpeg",
-    title: "Nike White Blue Premium",
-    price: "Rp. 4,500,000",
-    rating: "5.0",
-  },
-];
+import { trendingProducts } from "../data/products";
+import { useWishlist } from "../context/WishlistContext";
 
 export default function TrendingCard() {
+  const { toggleWishlist, isInWishlist } = useWishlist();
+
   return (
     <section className="py-16 bg-[#EFECE7]">
       <div className="container mx-auto px-6">
@@ -40,7 +29,7 @@ export default function TrendingCard() {
 
         {/* Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {products.map((product) => (
+          {trendingProducts.map((product) => (
             <div
               key={product.id}
               className="relative h-[400px] md:h-[450px] rounded-3xl overflow-hidden group shadow-lg shadow-[#4E342E]/10"
@@ -72,8 +61,16 @@ export default function TrendingCard() {
                     <p className="text-[#D7CCC8] font-medium text-lg drop-shadow-sm">{product.price}</p>
                   </div>
 
-                  <button className="text-white hover:text-red-500 bg-white/10 hover:bg-white/20 backdrop-blur-sm p-3 rounded-full transition">
-                    <Heart size={24} />
+                  <button 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleWishlist(product);
+                    }}
+                    className={`bg-white/10 hover:bg-white/20 backdrop-blur-sm p-3 rounded-full transition ${
+                      isInWishlist(product.id) ? "text-red-500" : "text-white hover:text-red-500"
+                    }`}
+                  >
+                    <Heart size={24} className={isInWishlist(product.id) ? "fill-red-500" : ""} />
                   </button>
                 </div>
 

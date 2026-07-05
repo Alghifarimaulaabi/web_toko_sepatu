@@ -1,39 +1,14 @@
+"use client";
+
 import Image from "next/image";
 import { Heart, ShoppingBag, Star, ArrowRight } from "lucide-react";
 import Link from "next/link";
-
-const products = [
-  {
-    id: 1,
-    image: "/images/nike-2.jpeg",
-    title: "Nike Air Jordan Force",
-    price: "Rp. 4,500,000",
-    rating: "5.0",
-  },
-  {
-    id: 2,
-    image: "/images/sepatu-1.jpeg",
-    title: "Nike White Blue",
-    price: "Rp. 4,500,000",
-    rating: "4.8",
-  },
-  {
-    id: 3,
-    image: "/images/nike-2.jpeg",
-    title: "Nike Classic Brown",
-    price: "Rp. 3,200,000",
-    rating: "4.9",
-  },
-  {
-    id: 4,
-    image: "/images/sepatu-1.jpeg",
-    title: "Nike Runner Elevate",
-    price: "Rp. 2,800,000",
-    rating: "4.7",
-  },
-];
+import { carouselProducts } from "../data/products";
+import { useWishlist } from "../context/WishlistContext";
 
 export default function ProductCarousel() {
+  const { toggleWishlist, isInWishlist } = useWishlist();
+
   return (
     <section className="py-16 bg-[#EFECE7]">
       <div className="container mx-auto px-6">
@@ -50,7 +25,7 @@ export default function ProductCarousel() {
 
         {/* Carousel Container */}
         <div className="flex gap-6 overflow-x-auto pb-8 pt-2 snap-x snap-mandatory scrollbar-hide">
-          {products.map((product) => (
+          {carouselProducts.map((product) => (
             <div
               key={product.id}
               className="min-w-[280px] md:min-w-[320px] snap-start bg-white rounded-3xl p-5 shadow-sm hover:shadow-xl transition duration-300 border border-[#D7CCC8]/50"
@@ -66,8 +41,16 @@ export default function ProductCarousel() {
                   <Star size={14} className="fill-[#FFB300] text-[#FFB300]" />
                   {product.rating}
                 </div>
-                <button className="absolute top-3 left-3 p-2.5 bg-white/90 backdrop-blur-sm rounded-full text-[#8D6E63] hover:text-red-500 transition shadow-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300">
-                  <Heart size={18} />
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    toggleWishlist(product);
+                  }}
+                  className={`absolute top-3 left-3 p-2.5 bg-white/90 backdrop-blur-sm rounded-full transition shadow-sm md:opacity-0 md:group-hover:opacity-100 md:translate-y-2 md:group-hover:translate-y-0 duration-300 ${
+                    isInWishlist(product.id) ? "text-red-500 opacity-100 translate-y-0" : "text-[#8D6E63] hover:text-red-500"
+                  }`}
+                >
+                  <Heart size={18} className={isInWishlist(product.id) ? "fill-red-500" : ""} />
                 </button>
               </div>
 

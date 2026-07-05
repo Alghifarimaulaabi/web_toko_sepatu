@@ -1,14 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag, User, Menu, LogOut } from "lucide-react";
+import { ShoppingBag, ShoppingCart, User, Menu, LogOut, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import LogoutModal from "./LogoutModal";
+import { useWishlist } from "../context/WishlistContext";
+import { useCart } from "../context/CartContext";
 
 const Navbar = () => {
     const [user, setUser] = useState<{ nama: string; email: string } | null>(null);
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const router = useRouter();
+    const { wishlist } = useWishlist();
+    const { getCartCount } = useCart();
+    const cartCount = getCartCount();
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
@@ -21,10 +28,15 @@ const Navbar = () => {
         }
     }, []);
 
-    const handleLogout = () => {
+    const handleLogoutClick = () => {
+        setIsLogoutModalOpen(true);
+    };
+
+    const confirmLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         setUser(null);
+        setIsLogoutModalOpen(false);
         toast.success("Berhasil logout");
         router.push("/");
     };
@@ -45,20 +57,20 @@ const Navbar = () => {
                 {/* Desktop Nav */}
                 <ul className="hidden md:flex gap-8 font-medium text-[15px]">
                     <li>
-                        <Link href="#" className="hover:text-white transition relative group py-2">
+                        <Link href="/" className="hover:text-white transition relative group py-2">
                             Beranda
                             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D7CCC8] transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                     </li>
                     <li>
-                        <Link href="#" className="hover:text-white transition relative group py-2">
+                        <Link href="/produk-pilihan" className="hover:text-white transition relative group py-2">
                             Produk Pilihan
                             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D7CCC8] transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                     </li>
                     <li>
-                        <Link href="#" className="hover:text-white transition relative group py-2">
-                            Kenapa Kami
+                        <Link href="/trending" className="hover:text-white transition relative group py-2">
+                            Sedang Tren
                             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D7CCC8] transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                     </li>
@@ -66,10 +78,28 @@ const Navbar = () => {
 
                 {/* Actions */}
                 <div className="flex items-center gap-5">
+                    <Link href="/wishlist" className="relative text-[#EFECE7] hover:text-white transition">
+                        <Heart size={24} />
+                        {wishlist.length > 0 && (
+                            <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                                {wishlist.length}
+                            </span>
+                        )}
+                    </Link>
+
+                    <Link href="/keranjang" className="relative text-[#EFECE7] hover:text-white transition">
+                        <ShoppingCart size={24} />
+                        {cartCount > 0 && (
+                            <span className="absolute -top-1 -right-2 bg-[#FF6F00] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                                {cartCount}
+                            </span>
+                        )}
+                    </Link>
+
                     {user ? (
                         <div className="flex items-center gap-4">
                             <span className="hidden md:block text-sm font-medium">Halo, {user.nama}</span>
-                            <button onClick={handleLogout} className="hidden md:flex items-center justify-center gap-2 transition w-[110px] rounded-xl bg-[#5D4037] text-white hover:bg-[#8D6E63] cursor-pointer p-2">
+                            <button onClick={handleLogoutClick} className="hidden md:flex items-center justify-center gap-2 transition w-[110px] rounded-xl bg-[#5D4037] text-white hover:bg-[#8D6E63] cursor-pointer p-2">
                                 <LogOut size={16} /> Logout
                             </button>
                         </div>
@@ -81,8 +111,13 @@ const Navbar = () => {
                         </Link>
                     )}
                 </div>
-                
             </div>
+            
+            <LogoutModal 
+                isOpen={isLogoutModalOpen} 
+                onClose={() => setIsLogoutModalOpen(false)} 
+                onConfirm={confirmLogout} 
+            />
         </nav>
     );
 }
