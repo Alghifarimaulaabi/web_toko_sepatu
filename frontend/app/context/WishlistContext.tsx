@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import type { Product } from "../data/products";
 
 interface WishlistContextType {
@@ -16,26 +16,87 @@ const WishlistContext = createContext<WishlistContextType | undefined>(undefined
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  // Load wishlist from localStorage on mount
-  useEffect(() => {
+  const getStorageKey = (email: string | null) => {
+    return email ? `wishlist_${email}` : "wishlist_guest";
+  };
+
+  const mergeGuestWishlist = (email: string) => {
     try {
-      const stored = localStorage.getItem("wishlist");
-      if (stored) {
-        setWishlist(JSON.parse(stored));
+      const guestWishlistStr = localStorage.getItem("wishlist_guest");
+      if (guestWishlistStr) {
+        const guestWishlist: Product[] = JSON.parse(guestWishlistStr);
+        if (guestWishlist.length > 0) {
+          const userKey = `wishlist_${email}`;
+          const userWishlistStr = localStorage.getItem(userKey);
+          let userWishlist: Product[] = userWishlistStr ? JSON.parse(userWishlistStr) : [];
+          
+          // Merge logic
+          guestWishlist.forEach((guestItem) => {
+            if (!userWishlist.some(item => item.id === guestItem.id)) {
+              userWishlist.push(guestItem);
+            }
+          });
+          
+          // Save merged wishlist
+          localStorage.setItem(userKey, JSON.stringify(userWishlist));
+          // Clear guest wishlist after merging
+          localStorage.removeItem("wishlist_guest");
+        }
       }
     } catch (error) {
-      console.error("Failed to load wishlist from localStorage", error);
+      console.error("Error merging guest wishlist", error);
+    }
+  };
+
+  const loadWishlist = useCallback(() => {
+    try {
+      const storedUser = localStorage.getItem("user");
+      let currentEmail = null;
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        currentEmail = parsed.email || null;
+      }
+      
+      setUserEmail(currentEmail);
+
+      if (currentEmail) {
+        mergeGuestWishlist(currentEmail);
+      }
+      
+      const key = getStorageKey(currentEmail);
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        setWishlist(JSON.parse(stored));
+      } else {
+        setWishlist([]);
+      }
+    } catch (error) {
+      console.error("Failed to load wishlist", error);
     }
     setIsLoaded(true);
   }, []);
 
-  // Save wishlist to localStorage whenever it changes
+  // Initial load
+  useEffect(() => {
+    loadWishlist();
+
+    const handleAuthChange = () => {
+      loadWishlist();
+    };
+
+    window.addEventListener("user-auth-change", handleAuthChange);
+    return () => window.removeEventListener("user-auth-change", handleAuthChange);
+  }, [loadWishlist]);
+
+  // Save wishlist whenever it changes
   useEffect(() => {
     if (isLoaded) {
-      localStorage.setItem("wishlist", JSON.stringify(wishlist));
+      const key = getStorageKey(userEmail);
+      localStorage.setItem(key, JSON.stringify(wishlist));
     }
-  }, [wishlist, isLoaded]);
+  }, [wishlist, isLoaded, userEmail]);
 
   const addToWishlist = (product: Product) => {
     setWishlist((prev) => {

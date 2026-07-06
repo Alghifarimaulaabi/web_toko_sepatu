@@ -27,6 +27,8 @@ model User {
 
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  pesanan    Pesanan[]
 }
 
 model Kategori {
@@ -58,32 +60,36 @@ model Produk {
 }
 
 model Pesanan {
-  id                   Int      @id @default(autoincrement())
+  id                 Int      @id @default(autoincrement())
 
-  kode_pesanan         String   @unique
+  user_id            Int
 
-  nama_penerima        String
-  email                String?
-  no_hp                String
+  kode_pesanan       String   @unique
 
-  alamat               String
-  kota                 String
-  provinsi             String
-  kode_pos             String
+  nama_penerima      String
+  email              String?
+  no_hp              String
 
-  total_harga          Decimal
+  alamat             String
+  kota               String
+  provinsi           String
+  kode_pos           String
 
-  metode_pembayaran    String
+  total_harga        Decimal
 
-  status               String
+  metode_pembayaran  String
 
-  tanggal_pesanan      DateTime @default(now())
+  status             String
 
-  created_at           DateTime @default(now())
-  updated_at           DateTime @updatedAt
+  tanggal_pesanan    DateTime @default(now())
 
-  detailPesanan        DetailPesanan[]
-  testimoni            Testimoni[]
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+
+  user               User @relation(fields: [user_id], references: [id])
+
+  detailPesanan      DetailPesanan[]
+  testimoni          Testimoni[]
 }
 
 model DetailPesanan {

@@ -1,17 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag, ShoppingCart, User, Menu, LogOut, Heart } from "lucide-react";
+import { ShoppingCart, LogOut, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import LogoutModal from "./LogoutModal";
 import { useWishlist } from "../context/WishlistContext";
 import { useCart } from "../context/CartContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
     const [user, setUser] = useState<{ nama: string; email: string } | null>(null);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
     const router = useRouter();
     const { wishlist } = useWishlist();
     const { getCartCount } = useCart();
@@ -26,90 +28,124 @@ const Navbar = () => {
                 console.error("Failed to parse user data", error);
             }
         }
+        
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 20);
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
     }, []);
-
-    const handleLogoutClick = () => {
-        setIsLogoutModalOpen(true);
-    };
 
     const confirmLogout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         setUser(null);
+        window.dispatchEvent(new Event("user-auth-change"));
         setIsLogoutModalOpen(false);
         toast.success("Berhasil logout");
         router.push("/");
     };
 
     return (
-        <nav className="sticky top-0 z-50 w-full bg-[#3E2723]/95 backdrop-blur-md border-b border-[#5D4037] shadow-sm transition-all duration-300">
-            <div className="container mx-auto px-6 py-4 flex justify-between items-center text-[#EFECE7]">
-                
-                {/* Logo */}
-                <div className="logo flex-shrink-0">
-                    <Link href="/">
-                        <h3 className="text-2xl font-black tracking-tighter text-white">
-                            LOGO<span className="text-[#D7CCC8]">WEBSITE</span>
-                        </h3>
-                    </Link>
-                </div>
-                
-                {/* Desktop Nav */}
-                <ul className="hidden md:flex gap-8 font-medium text-[15px]">
-                    <li>
-                        <Link href="/" className="hover:text-white transition relative group py-2">
-                            Beranda
-                            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D7CCC8] transition-all duration-300 group-hover:w-full"></span>
+        <motion.nav 
+            initial={{ y: -100 }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? 'py-2' : 'py-4'}`}
+        >
+            <div className={`container mx-auto px-6 transition-all duration-500 ${scrolled ? 'max-w-5xl' : ''}`}>
+                <div className={`flex justify-between items-center px-6 py-3 rounded-2xl ${scrolled ? 'glass-dark' : 'bg-transparent'} transition-all duration-500`}>
+                    {/* Logo */}
+                    <div className="logo flex-shrink-0">
+                        <Link href="/">
+                            <motion.h3 
+                                whileHover={{ scale: 1.05 }}
+                                className="text-2xl font-display font-black tracking-tighter text-white"
+                            >
+                                L<span className="text-brand-light">W</span>
+                            </motion.h3>
                         </Link>
-                    </li>
-                    <li>
-                        <Link href="/produk-pilihan" className="hover:text-white transition relative group py-2">
-                            Produk Pilihan
-                            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D7CCC8] transition-all duration-300 group-hover:w-full"></span>
-                        </Link>
-                    </li>
-                    <li>
-                        <Link href="/trending" className="hover:text-white transition relative group py-2">
-                            Sedang Tren
-                            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D7CCC8] transition-all duration-300 group-hover:w-full"></span>
-                        </Link>
-                    </li>
-                </ul>
+                    </div>
+                    
+                    {/* Desktop Nav */}
+                    <ul className="hidden md:flex gap-8 font-medium text-[15px] text-white/90">
+                        {['Beranda', 'Produk Pilihan', 'Sedang Tren'].map((item, index) => {
+                            const paths = ['/', '/produk-pilihan', '/trending'];
+                            return (
+                                <li key={item}>
+                                    <Link href={paths[index]} className="relative group py-2 font-display tracking-wide">
+                                        <span className="relative z-10 group-hover:text-white transition-colors">{item}</span>
+                                        <motion.span 
+                                            className="absolute bottom-0 left-0 w-0 h-0.5 bg-brand-light group-hover:w-full transition-all duration-300"
+                                        />
+                                    </Link>
+                                </li>
+                            );
+                        })}
+                    </ul>
 
-                {/* Actions */}
-                <div className="flex items-center gap-5">
-                    <Link href="/wishlist" className="relative text-[#EFECE7] hover:text-white transition">
-                        <Heart size={24} />
-                        {wishlist.length > 0 && (
-                            <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                                {wishlist.length}
-                            </span>
+                    {/* Actions */}
+                    <div className="flex items-center gap-5 text-white/90">
+                        <Link href="/wishlist" className="relative hover:text-white transition group">
+                            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                                <Heart size={22} className="group-hover:fill-brand-light group-hover:text-brand-light transition-all" />
+                                <AnimatePresence>
+                                    {wishlist.length > 0 && (
+                                        <motion.span 
+                                            initial={{ scale: 0, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            exit={{ scale: 0, opacity: 0 }}
+                                            className="absolute -top-1.5 -right-2 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-lg"
+                                        >
+                                            {wishlist.length}
+                                        </motion.span>
+                                    )}
+                                </AnimatePresence>
+                            </motion.div>
+                        </Link>
+
+                        <Link href="/keranjang" className="relative hover:text-white transition group">
+                            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                                <ShoppingCart size={22} className="group-hover:text-brand-light transition-all" />
+                                <AnimatePresence>
+                                    {cartCount > 0 && (
+                                        <motion.span 
+                                            initial={{ scale: 0, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            exit={{ scale: 0, opacity: 0 }}
+                                            className="absolute -top-1.5 -right-2 bg-brand text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-lg"
+                                        >
+                                            {cartCount}
+                                        </motion.span>
+                                    )}
+                                </AnimatePresence>
+                            </motion.div>
+                        </Link>
+
+                        {user ? (
+                            <div className="flex items-center gap-4">
+                                <span className="hidden md:block text-sm font-medium font-display tracking-wide">Halo, {user.nama}</span>
+                                <motion.button 
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={() => setIsLogoutModalOpen(true)} 
+                                    className="hidden md:flex items-center justify-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 text-white p-2 px-4 shadow-lg transition-colors"
+                                >
+                                    <LogOut size={16} /> <span className="text-sm font-medium">Logout</span>
+                                </motion.button>
+                            </div>
+                        ) : (
+                            <Link href="/auth/login">
+                                <motion.button 
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className="hidden md:flex items-center justify-center rounded-xl bg-white text-brand-darkest hover:bg-brand-light p-2 px-6 shadow-lg transition-colors font-bold font-display tracking-wide"
+                                >
+                                    Login
+                                </motion.button>
+                            </Link>
                         )}
-                    </Link>
-
-                    <Link href="/keranjang" className="relative text-[#EFECE7] hover:text-white transition">
-                        <ShoppingCart size={24} />
-                        {cartCount > 0 && (
-                            <span className="absolute -top-1 -right-2 bg-[#FF6F00] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                                {cartCount}
-                            </span>
-                        )}
-                    </Link>
-
-                    {user ? (
-                        <div className="flex items-center gap-4">
-                            <span className="hidden md:block text-sm font-medium">Halo, {user.nama}</span>
-                            <button onClick={handleLogoutClick} className="hidden md:flex items-center justify-center gap-2 transition w-[110px] rounded-xl bg-[#5D4037] text-white hover:bg-[#8D6E63] cursor-pointer p-2">
-                                <LogOut size={16} /> Logout
-                            </button>
-                        </div>
-                    ) : (
-                        <Link href="/auth/login">
-                            <button className="hidden md:flex items-center justify-center transition w-[100px] rounded-xl bg-white text-[#1b191a] hover:bg-gray-200 cursor-pointer p-2">
-                                Login
-                            </button>
-                        </Link>
-                    )}
+                    </div>
                 </div>
             </div>
             
@@ -118,7 +154,7 @@ const Navbar = () => {
                 onClose={() => setIsLogoutModalOpen(false)} 
                 onConfirm={confirmLogout} 
             />
-        </nav>
+        </motion.nav>
     );
 }
 

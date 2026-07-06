@@ -86,6 +86,7 @@ export default function Form() {
       // Save to localStorage
       localStorage.setItem("token", result.token);
       localStorage.setItem("user", JSON.stringify(result.user));
+      window.dispatchEvent(new Event("user-auth-change"));
 
       toast.success(result.message || "Login berhasil!");
       setTimeout(() => {

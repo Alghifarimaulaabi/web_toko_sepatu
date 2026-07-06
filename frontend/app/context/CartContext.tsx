@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import type { Product } from "../data/products";
 
 export interface CartItem {
@@ -35,26 +35,90 @@ export function formatRupiah(amount: number): string {
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
-  // Load cart from localStorage on mount
-  useEffect(() => {
+  const getStorageKey = (email: string | null) => {
+    return email ? `cart_${email}` : "cart_guest";
+  };
+
+  const mergeGuestCart = (email: string) => {
     try {
-      const stored = localStorage.getItem("cart");
-      if (stored) {
-        setCart(JSON.parse(stored));
+      const guestCartStr = localStorage.getItem("cart_guest");
+      if (guestCartStr) {
+        const guestCart: CartItem[] = JSON.parse(guestCartStr);
+        if (guestCart.length > 0) {
+          const userKey = `cart_${email}`;
+          const userCartStr = localStorage.getItem(userKey);
+          let userCart: CartItem[] = userCartStr ? JSON.parse(userCartStr) : [];
+          
+          // Merge logic
+          guestCart.forEach((guestItem) => {
+            const existingIndex = userCart.findIndex(item => item.product.id === guestItem.product.id);
+            if (existingIndex >= 0) {
+              userCart[existingIndex].quantity += guestItem.quantity;
+            } else {
+              userCart.push(guestItem);
+            }
+          });
+          
+          // Save merged cart
+          localStorage.setItem(userKey, JSON.stringify(userCart));
+          // Clear guest cart after merging
+          localStorage.removeItem("cart_guest");
+        }
       }
     } catch (error) {
-      console.error("Failed to load cart from localStorage", error);
+      console.error("Error merging guest cart", error);
+    }
+  };
+
+  const loadCart = useCallback(() => {
+    try {
+      const storedUser = localStorage.getItem("user");
+      let currentEmail = null;
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser);
+        currentEmail = parsed.email || null;
+      }
+      
+      setUserEmail(currentEmail);
+      
+      if (currentEmail) {
+        mergeGuestCart(currentEmail);
+      }
+      
+      const key = getStorageKey(currentEmail);
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        setCart(JSON.parse(stored));
+      } else {
+        setCart([]);
+      }
+    } catch (error) {
+      console.error("Failed to load cart", error);
     }
     setIsLoaded(true);
   }, []);
 
-  // Save cart to localStorage whenever it changes
+  // Initial load
+  useEffect(() => {
+    loadCart();
+
+    const handleAuthChange = () => {
+      loadCart();
+    };
+
+    window.addEventListener("user-auth-change", handleAuthChange);
+    return () => window.removeEventListener("user-auth-change", handleAuthChange);
+  }, [loadCart]);
+
+  // Save cart whenever it changes
   useEffect(() => {
     if (isLoaded) {
-      localStorage.setItem("cart", JSON.stringify(cart));
+      const key = getStorageKey(userEmail);
+      localStorage.setItem(key, JSON.stringify(cart));
     }
-  }, [cart, isLoaded]);
+  }, [cart, isLoaded, userEmail]);
 
   const addToCart = (product: Product, quantity: number = 1) => {
     setCart((prev) => {
