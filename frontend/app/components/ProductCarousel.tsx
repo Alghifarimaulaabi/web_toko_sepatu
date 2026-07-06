@@ -1,13 +1,52 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Heart, ShoppingBag, Star, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { carouselProducts } from "../data/products";
 import { useWishlist } from "../context/WishlistContext";
+
+interface CarouselProduct {
+  id: number;
+  image: string;
+  title: string;
+  price: string;
+  rating: string;
+  description: string;
+}
+
+interface ProdukListResponse {
+  produk: {
+    id: number;
+    nama_produk: string;
+    harga: number;
+    gambar: string;
+    deskripsi: string;
+  }[];
+}
 
 export default function ProductCarousel() {
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const [carouselProducts, setCarouselProducts] = useState<CarouselProduct[]>([]);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/products", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          const formatted: CarouselProduct[] = data.slice(0, 8).map((p: any) => ({
+            id: p.id,
+            image: `http://localhost:5000${p.gambar}`,
+            title: p.nama_produk,
+            price: `Rp. ${Number(p.harga).toLocaleString("id-ID")}`,
+            rating: "5.0",
+            description: p.deskripsi,
+          }));
+          setCarouselProducts(formatted);
+        }
+      })
+      .catch((err) => console.error("Error fetching carousel products:", err));
+  }, []);
 
   return (
     <section className="py-16 bg-[#EFECE7]">
@@ -23,7 +62,6 @@ export default function ProductCarousel() {
           </Link>
         </div>
 
-        {/* Carousel Container */}
         <div className="flex gap-6 overflow-x-auto pb-8 pt-2 snap-x snap-mandatory scrollbar-hide">
           {carouselProducts.map((product) => (
             <div
@@ -35,13 +73,14 @@ export default function ProductCarousel() {
                   src={product.image}
                   alt={product.title}
                   fill
+                  unoptimized
                   className="object-cover group-hover:scale-110 transition duration-500"
                 />
                 <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold text-[#3E2723] shadow-sm">
                   <Star size={14} className="fill-[#FFB300] text-[#FFB300]" />
                   {product.rating}
                 </div>
-                <button 
+                <button
                   onClick={(e) => {
                     e.preventDefault();
                     toggleWishlist(product);
@@ -57,7 +96,7 @@ export default function ProductCarousel() {
               <div>
                 <h3 className="font-bold text-xl text-[#3E2723] mb-1 line-clamp-1">{product.title}</h3>
                 <p className="text-[#8D6E63] font-semibold text-lg mb-5">{product.price}</p>
-                
+
                 <Link href={`/produk/${product.id}`} className="w-full flex items-center justify-center gap-2 bg-[#5D4037] hover:bg-[#3E2723] text-white py-3.5 rounded-xl transition duration-300 font-semibold shadow-md shadow-[#5D4037]/20">
                   <ShoppingBag size={20} />
                   Beli Sekarang
@@ -66,13 +105,12 @@ export default function ProductCarousel() {
             </div>
           ))}
         </div>
-        
-        {/* Mobile See More Link */}
+
         <div className="mt-4 flex justify-center md:hidden">
-            <Link href="/produk-pilihan" className="flex items-center gap-2 text-[#5D4037] hover:text-[#3E2723] transition font-semibold group bg-white px-6 py-3 rounded-full shadow-sm">
-                Lihat Lebih banyak
-                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
+          <Link href="/produk-pilihan" className="flex items-center gap-2 text-[#5D4037] hover:text-[#3E2723] transition font-semibold group bg-white px-6 py-3 rounded-full shadow-sm">
+            Lihat Lebih banyak
+            <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
       </div>
     </section>

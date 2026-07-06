@@ -24,8 +24,7 @@ import { useRouter } from "next/navigation";
 const loginSchema = z.object({
   email: z
     .string()
-    .min(1, "Email wajib diisi")
-    .email("Format email tidak valid"),
+    .min(1, "Email/Username wajib diisi"),
   password: z
     .string()
     .min(1, "Password wajib diisi")
@@ -90,7 +89,11 @@ export default function Form() {
 
       toast.success(result.message || "Login berhasil!");
       setTimeout(() => {
-        router.push("/");
+        if (result.user.role === 'ADMIN') {
+          router.push("/admin");
+        } else {
+          router.push("/");
+        }
       }, 1000);
     } catch (error) {
       toast.error("Terjadi kesalahan pada jaringan");
@@ -183,8 +186,8 @@ export default function Form() {
               <div className={`flex items-center rounded-xl border-2 px-4 py-3.5 transition-all ${errors.email ? 'border-red-400 bg-red-50/50' : 'border-[#D7CCC8] focus-within:border-[#8D6E63] bg-white'}`}>
                 <Mail className={`mr-3 ${errors.email ? 'text-red-400' : 'text-[#8D6E63]'}`} size={20} />
                 <input
-                  type="email"
-                  placeholder="Email"
+                  type="text"
+                  placeholder="Email / Username"
                   className="w-full outline-none bg-transparent text-[#3E2723] placeholder:text-gray-400"
                   {...register("email")}
                 />

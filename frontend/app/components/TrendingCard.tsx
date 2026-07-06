@@ -1,5 +1,6 @@
-"use client";
+'use client'
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Heart, ShoppingBag, Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
@@ -8,6 +9,26 @@ import { useWishlist } from "../context/WishlistContext";
 
 export default function TrendingCard() {
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const [trendingProducts, setTrendingProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/products', { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const formatted = data.slice(0, 4).map(p => ({
+            id: p.id,
+            image: `http://localhost:5000${p.gambar}`,
+            title: p.nama_produk,
+            price: `Rp. ${Number(p.harga).toLocaleString('id-ID')}`,
+            rating: "5.0",
+            description: p.deskripsi || "",
+          }));
+          setTrendingProducts(formatted);
+        }
+      })
+      .catch(err => console.error("Error fetching trending products:", err));
+  }, []);
 
   return (
     <section className="py-16 bg-[#EFECE7]">
@@ -39,6 +60,7 @@ export default function TrendingCard() {
                 src={product.image}
                 alt={product.title}
                 fill
+                unoptimized
                 className="object-cover group-hover:scale-110 transition duration-700 ease-out"
               />
               

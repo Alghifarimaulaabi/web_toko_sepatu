@@ -31,34 +31,44 @@ model User {
   pesanan    Pesanan[]
 }
 
-model Kategori {
-  id             Int      @id @default(autoincrement())
-  nama_kategori  String
-
-  created_at     DateTime @default(now())
-  updated_at     DateTime @updatedAt
-
-  produk         Produk[]
+enum JenisKategori {
+  RUNNING
+  FUTSAL
+  CASUAL
+  FORMAL
+  SANDAL
 }
 
 model Produk {
   id            Int      @id @default(autoincrement())
-
-  kategori_id   Int
-
+  kategori      JenisKategori
   nama_produk   String
   deskripsi     String
   harga         Decimal
-  stok          Int
-  gambar        String
-
+  gambar        String          // gambar utama/thumbnail
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
-  kategori       Kategori       @relation(fields: [kategori_id], references: [id])
   detailPesanan  DetailPesanan[]
+  varian         ProdukVarian[]  // baru
+
+  // catatan: field `stok` lama dihapus, dipindah ke ProdukVarian
 }
 
+model ProdukVarian {
+  id          Int      @id @default(autoincrement())
+  produk_id   Int
+  warna       String
+  ukuran      String
+  stok        Int      @default(0)
+
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  produk      Produk   @relation(fields: [produk_id], references: [id], onDelete: Cascade)
+
+  @@unique([produk_id, warna, ukuran]) // cegah duplikat kombinasi
+}
 model Pesanan {
   id                 Int      @id @default(autoincrement())
 

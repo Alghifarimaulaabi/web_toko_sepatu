@@ -11,6 +11,14 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 
+// Register product routes
+import productRoutes from './routes/product.js';
+app.use('/api/products', productRoutes);
+
+// Setup static folder for uploads
+import path from 'path';
+app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')));
+
 app.get('/', (req, res) => {
   res.send('API is running...');
 });

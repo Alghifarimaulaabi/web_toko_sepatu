@@ -1,30 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../components/navbar";
 import Footer from "../components/Footer";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag, Star, Sparkles, Search, ChevronLeft, ChevronRight } from "lucide-react";
 
-const selectedProducts = [
-  { id: 1, image: "/images/nike-2.jpeg", title: "Nike Air Jordan Force", price: "Rp. 4,500,000", rating: "5.0" },
-  { id: 2, image: "/images/sepatu-1.jpeg", title: "Nike White Blue", price: "Rp. 4,500,000", rating: "4.8" },
-  { id: 3, image: "/images/nike-2.jpeg", title: "Nike Classic Brown", price: "Rp. 3,200,000", rating: "4.9" },
-  { id: 4, image: "/images/sepatu-1.jpeg", title: "Nike Runner Elevate", price: "Rp. 2,800,000", rating: "4.7" },
-  { id: 5, image: "/images/nike-2.jpeg", title: "Nike Air Zoom Pegasus", price: "Rp. 2,500,000", rating: "4.8" },
-  { id: 6, image: "/images/sepatu-1.jpeg", title: "Nike Blazer Mid 77", price: "Rp. 1,800,000", rating: "4.6" },
-  { id: 7, image: "/images/nike-2.jpeg", title: "Nike React Infinity", price: "Rp. 2,950,000", rating: "4.7" },
-  { id: 8, image: "/images/sepatu-1.jpeg", title: "Nike SB Dunk Low", price: "Rp. 3,100,000", rating: "4.9" },
-  { id: 9, image: "/images/nike-2.jpeg", title: "Nike Vapormax Flyknit", price: "Rp. 3,200,000", rating: "4.8" },
-  { id: 10, image: "/images/sepatu-1.jpeg", title: "Nike Joyride Dual", price: "Rp. 2,100,000", rating: "4.5" },
-];
-
 const ITEMS_PER_PAGE = 8;
 
 export default function SelectedProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/products', { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const formatted = data.map(p => ({
+            id: p.id,
+            image: `http://localhost:5000${p.gambar}`,
+            title: p.nama_produk,
+            price: `Rp. ${Number(p.harga).toLocaleString('id-ID')}`,
+            rating: "5.0",
+          }));
+          setSelectedProducts(formatted);
+        }
+      })
+      .catch(err => console.error("Error fetching products:", err));
+  }, []);
 
   const filteredProducts = selectedProducts.filter((product) =>
     product.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -89,6 +95,7 @@ export default function SelectedProductsPage() {
                       src={product.image}
                       alt={product.title}
                       fill
+                      unoptimized
                       className="object-cover group-hover:scale-110 transition duration-500"
                     />
                     <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold text-[#3E2723] shadow-sm">

@@ -25,6 +25,25 @@ const ITEMS_PER_PAGE = 6;
 export default function TrendingPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [trendingProducts, setTrendingProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/products', { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const formatted = data.map(p => ({
+            id: p.id,
+            image: `http://localhost:5000${p.gambar}`,
+            title: p.nama_produk,
+            price: `Rp. ${Number(p.harga).toLocaleString('id-ID')}`,
+            rating: "5.0",
+          }));
+          setTrendingProducts(formatted);
+        }
+      })
+      .catch(err => console.error("Error fetching trending products:", err));
+  }, []);
 
   const filteredProducts = trendingProducts.filter((product) =>
     product.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -89,6 +108,7 @@ export default function TrendingPage() {
                     src={product.image}
                     alt={product.title}
                     fill
+                    unoptimized
                     className="object-cover group-hover:scale-110 transition duration-700 ease-out"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#2D1B15]/90 via-[#2D1B15]/40 to-transparent"></div>

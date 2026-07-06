@@ -46,6 +46,7 @@ export default function WishlistPage() {
                         src={product.image}
                         alt={product.title}
                         fill
+                        unoptimized
                         className="object-cover group-hover:scale-110 transition duration-500"
                       />
                       <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold text-[#3E2723] shadow-sm">

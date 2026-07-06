@@ -21,7 +21,7 @@ import {
 import Navbar from "../components/navbar";
 import Footer from "../components/Footer";
 import LoginModal from "../components/LoginModal";
-import { useCart, formatRupiah } from "../context/CartContext";
+import { useCart, formatRupiah, cleanPrice } from "../context/CartContext";
 
 type PaymentMethod = "transfer" | "ewallet" | "cod";
 
@@ -172,6 +172,7 @@ export default function KeranjangPage() {
                             src={item.product.image}
                             alt={item.product.title}
                             fill
+                            unoptimized
                             className="object-cover group-hover:scale-110 transition duration-500"
                           />
                         </div>
@@ -217,7 +218,7 @@ export default function KeranjangPage() {
                             {/* Price & Delete */}
                             <div className="flex items-center justify-between sm:justify-end gap-4">
                               <p className="text-xl md:text-2xl font-bold text-[#3E2723]">
-                                {formatRupiah(item.product.price * item.quantity)}
+                                {formatRupiah(cleanPrice(item.product.price) * item.quantity)}
                               </p>
                               <button
                                 onClick={() => handleRemove(item.product.id)}

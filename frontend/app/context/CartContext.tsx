@@ -23,13 +23,22 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-export function formatRupiah(amount: number): string {
+export function cleanPrice(price: number | string): number {
+  if (typeof price === "number") return price;
+  const digitsOnly = price.replace(/\D/g, "");
+  const num = parseInt(digitsOnly, 10);
+  return isNaN(num) ? 0 : num;
+}
+
+export function formatRupiah(amount: number | string): string {
+  const num = typeof amount === "number" ? amount : cleanPrice(amount);
+  if (isNaN(num)) return "Rp 0";
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amount);
+  }).format(num);
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {
@@ -90,7 +99,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const key = getStorageKey(currentEmail);
       const stored = localStorage.getItem(key);
       if (stored) {
-        setCart(JSON.parse(stored));
+        const parsed: CartItem[] = JSON.parse(stored);
+        // Clean prices from localStorage (may be strings like "Rp. 1.200.000")
+        const cleaned = parsed.map((item) => ({
+          ...item,
+          product: {
+            ...item.product,
+            price: cleanPrice(item.product.price),
+          },
+        }));
+        setCart(cleaned);
       } else {
         setCart([]);
       }
@@ -121,8 +139,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [cart, isLoaded, userEmail]);
 
   const addToCart = (product: Product, quantity: number = 1) => {
+    const cleanedProduct = {
+      ...product,
+      price: cleanPrice(product.price),
+    };
     setCart((prev) => {
-      const existingIndex = prev.findIndex((item) => item.product.id === product.id);
+      const existingIndex = prev.findIndex((item) => item.product.id === cleanedProduct.id);
       if (existingIndex >= 0) {
         const updated = [...prev];
         updated[existingIndex] = {
@@ -131,7 +153,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         };
         return updated;
       }
-      return [...prev, { product, quantity }];
+      return [...prev, { product: cleanedProduct, quantity }];
     });
   };
 
@@ -173,7 +195,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const getCartTotal = () => {
-    return cart.reduce((total, item) => total + item.product.price * item.quantity, 0);
+    return cart.reduce((total, item) => total + cleanPrice(item.product.price) * item.quantity, 0);
   };
 
   const getCartCount = () => {
