@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../components/navbar";
 import Footer from "../components/Footer";
 import Image from "next/image";
@@ -174,3 +174,4 @@ export default function TrendingPage() {
     </main>
   );
 }
+

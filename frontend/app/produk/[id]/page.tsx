@@ -67,29 +67,6 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
   useEffect(() => {
     const numId = Number(id);
 
-    // 1. Cek dulu apakah ini mock product (data statis lama)
-    const mockProduct = getProductById(numId);
-    if (mockProduct) {
-      setProduct({
-        id: mockProduct.id,
-        title: mockProduct.title,
-        price: mockProduct.price,
-        rating: mockProduct.rating,
-        reviews: 124,
-        description: mockProduct.description,
-        image: mockProduct.image,
-        colors: [
-          { name: "Hitam/Putih", code: "bg-gray-900" },
-          { name: "Biru/Merah", code: "bg-blue-600" },
-          { name: "Cokelat Klasik", code: "bg-[#8D6E63]" },
-          { name: "Putih Bersih", code: "bg-gray-100" },
-        ],
-        sizes: ["39", "40", "41", "42", "43", "44", "45"],
-      });
-      setLoading(false);
-      return;
-    }
-
     // 2. Kalau bukan mock, fetch dari backend
     fetch(`http://localhost:5000/api/products/${numId}`, { cache: "no-store" })
       .then((res) => {
