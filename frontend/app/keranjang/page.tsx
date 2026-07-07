@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ShoppingCart,
@@ -47,7 +48,8 @@ const paymentMethods: { id: PaymentMethod; label: string; icon: React.ReactNode;
 ];
 
 export default function KeranjangPage() {
-  const { cart, removeFromCart, increaseQuantity, decreaseQuantity, getCartTotal } = useCart();
+  const router = useRouter();
+  const { cart, removeFromCart, increaseQuantity, decreaseQuantity, getCartTotal, setCheckoutItems } = useCart();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("transfer");
@@ -360,7 +362,13 @@ export default function KeranjangPage() {
                   </div>
 
                   {/* Checkout Button */}
-                  <button className="w-full bg-gradient-to-r from-[#5D4037] to-[#3E2723] text-white py-4 rounded-xl hover:from-[#3E2723] hover:to-[#3E2723] transition-all duration-300 font-bold text-lg shadow-lg shadow-[#5D4037]/20 hover:shadow-xl hover:shadow-[#5D4037]/30 active:scale-[0.98]">
+                  <button
+                    onClick={() => {
+                      setCheckoutItems(cart);
+                      router.push("/checkout");
+                    }}
+                    className="w-full bg-gradient-to-r from-[#5D4037] to-[#3E2723] text-white py-4 rounded-xl hover:from-[#3E2723] hover:to-[#3E2723] transition-all duration-300 font-bold text-lg shadow-lg shadow-[#5D4037]/20 hover:shadow-xl hover:shadow-[#5D4037]/30 active:scale-[0.98]"
+                  >
                     Bayar Sekarang
                   </button>
 

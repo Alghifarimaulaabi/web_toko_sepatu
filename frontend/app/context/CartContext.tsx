@@ -10,6 +10,8 @@ export interface CartItem {
 
 interface CartContextType {
   cart: CartItem[];
+  checkoutItems: CartItem[];
+  setCheckoutItems: (items: CartItem[]) => void;
   addToCart: (product: Product, quantity?: number) => void;
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
@@ -43,11 +45,16 @@ export function formatRupiah(amount: number | string): string {
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [checkoutItems, setCheckoutItems] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
   const getStorageKey = (email: string | null) => {
     return email ? `cart_${email}` : "cart_guest";
+  };
+
+  const getCheckoutStorageKey = (email: string | null) => {
+    return email ? `checkout_items_${email}` : "checkout_items_guest";
   };
 
   const mergeGuestCart = (email: string) => {
@@ -96,6 +103,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         mergeGuestCart(currentEmail);
       }
       
+      // Load cart
       const key = getStorageKey(currentEmail);
       const stored = localStorage.getItem(key);
       if (stored) {
@@ -112,8 +120,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
       } else {
         setCart([]);
       }
+
+      // Load checkout items
+      const checkoutKey = getCheckoutStorageKey(currentEmail);
+      const storedCheckout = localStorage.getItem(checkoutKey);
+      if (storedCheckout) {
+        const parsed: CartItem[] = JSON.parse(storedCheckout);
+        const cleaned = parsed.map((item) => ({
+          ...item,
+          product: {
+            ...item.product,
+            price: cleanPrice(item.product.price),
+          },
+        }));
+        setCheckoutItems(cleaned);
+      } else {
+        setCheckoutItems([]);
+      }
     } catch (error) {
-      console.error("Failed to load cart", error);
+      console.error("Failed to load cart or checkout items", error);
     }
     setIsLoaded(true);
   }, []);
@@ -137,6 +162,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
       localStorage.setItem(key, JSON.stringify(cart));
     }
   }, [cart, isLoaded, userEmail]);
+
+  // Save checkout items whenever they change
+  useEffect(() => {
+    if (isLoaded) {
+      const key = getCheckoutStorageKey(userEmail);
+      localStorage.setItem(key, JSON.stringify(checkoutItems));
+    }
+  }, [checkoutItems, isLoaded, userEmail]);
 
   const addToCart = (product: Product, quantity: number = 1) => {
     const cleanedProduct = {
@@ -210,6 +243,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     <CartContext.Provider
       value={{
         cart,
+        checkoutItems,
+        setCheckoutItems,
         addToCart,
         removeFromCart,
         updateQuantity,

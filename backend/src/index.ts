@@ -15,6 +15,10 @@ app.use('/api/auth', authRoutes);
 import productRoutes from './routes/product.js';
 app.use('/api/products', productRoutes);
 
+// Register checkout routes
+import checkoutRoutes from './routes/checkout.js';
+app.use('/api/checkout', checkoutRoutes);
+
 // Setup static folder for uploads
 import path from 'path';
 app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')));

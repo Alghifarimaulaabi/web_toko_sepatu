@@ -3,9 +3,11 @@
 import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Navbar from "../../components/navbar";
 import Footer from "../../components/Footer";
 import LoginModal from "../../components/LoginModal";
+import ProductCheckoutModal from "../../components/ProductCheckoutModal";
 import { Heart, ShoppingBag, Star, ArrowLeft, Truck, ShieldCheck, Undo2 } from "lucide-react";
 import { useWishlist } from "../../context/WishlistContext";
 import { useCart } from "../../context/CartContext";
@@ -49,8 +51,9 @@ interface ProdukApiResponse {
 
 export default function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const router = useRouter();
   const { toggleWishlist, isInWishlist } = useWishlist();
-  const { addToCart } = useCart();
+  const { addToCart, setCheckoutItems } = useCart();
 
   const [product, setProduct] = useState<ProductDetailData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -63,9 +66,12 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
   const [quantity, setQuantity] = useState(1);
   const [isHovered, setIsHovered] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [checkoutQuantity, setCheckoutQuantity] = useState(1);
 
   useEffect(() => {
     const numId = Number(id);
+
 
     // 2. Kalau bukan mock, fetch dari backend
     fetch(`http://localhost:5000/api/products/${numId}`, { cache: "no-store" })
@@ -102,8 +108,9 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
     if (action === "cart") {
       addToCart(product, quantity);
       toast.success(`${product.title} ditambahkan ke keranjang!`);
-    } else {
-      alert("Melanjutkan ke pembayaran...");
+    } else if (action === "buy") {
+      setCheckoutQuantity(quantity);
+      setShowCheckoutModal(true);
     }
   };
 
@@ -304,6 +311,40 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
       <Footer />
 
       <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
+
+      {product && (
+        <ProductCheckoutModal
+          isOpen={showCheckoutModal}
+          onClose={() => setShowCheckoutModal(false)}
+          product={{
+            id: product.id,
+            image: product.image,
+            title: product.title,
+            description: product.description,
+            price: Number(product.price.replace(/[^0-9]/g, "")),
+          }}
+          quantity={checkoutQuantity}
+          onIncrease={() => setCheckoutQuantity((prev) => prev + 1)}
+          onDecrease={() => setCheckoutQuantity((prev) => Math.max(1, prev - 1))}
+          onCheckout={() => {
+            setShowCheckoutModal(false);
+            setCheckoutItems([
+              {
+                product: {
+                  id: product.id,
+                  image: product.image,
+                  title: product.title,
+                  description: product.description,
+                  price: Number(product.price.replace(/[^0-9]/g, "")),
+                  rating: Number(product.rating),
+                },
+                quantity: checkoutQuantity,
+              },
+            ]);
+            router.push("/checkout");
+          }}
+        />
+      )}
     </main>
   );
 }

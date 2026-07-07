@@ -84,6 +84,7 @@ model Pesanan {
   kota               String
   provinsi           String
   kode_pos           String
+  catatan            String?
 
   total_harga        Decimal
 

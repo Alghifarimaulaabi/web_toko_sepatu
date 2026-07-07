@@ -13,6 +13,7 @@ export default function SelectedProductsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("SEMUA");
 
   useEffect(() => {
     fetch('http://localhost:5000/api/products', { cache: 'no-store' })
@@ -25,6 +26,7 @@ export default function SelectedProductsPage() {
             title: p.nama_produk,
             price: `Rp. ${Number(p.harga).toLocaleString('id-ID')}`,
             rating: "5.0",
+            kategori: p.kategori,
           }));
           setSelectedProducts(formatted);
         }
@@ -32,9 +34,11 @@ export default function SelectedProductsPage() {
       .catch(err => console.error("Error fetching products:", err));
   }, []);
 
-  const filteredProducts = selectedProducts.filter((product) =>
-    product.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = selectedProducts.filter((product) => {
+    const matchSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchCategory = selectedCategory === "SEMUA" || product.kategori === selectedCategory;
+    return matchSearch && matchCategory;
+  });
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -80,6 +84,23 @@ export default function SelectedProductsPage() {
               }}
               className="w-full pl-12 pr-4 py-4 rounded-full border-2 border-[#D7CCC8]/50 bg-white/70 focus:bg-white focus:outline-none focus:border-[#8D6E63] transition shadow-sm text-[#3E2723] font-medium"
             />
+          </div>
+
+          {/* Categories */}
+          <div className="flex flex-wrap justify-center gap-3 mb-12">
+            {["SEMUA", "RUNNING", "FUTSAL", "CASUAL", "FORMAL", "SANDAL"].map((cat) => (
+              <button
+                key={cat}
+                onClick={() => { setSelectedCategory(cat); setCurrentPage(1); }}
+                className={`px-5 py-2 rounded-full font-semibold transition-all duration-300 ${
+                  selectedCategory === cat
+                    ? "bg-[#5D4037] text-white shadow-md"
+                    : "bg-white text-[#8D6E63] hover:bg-[#D7CCC8]/50 border border-[#D7CCC8]/50"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
           </div>
 
           {/* Cards Grid */}
