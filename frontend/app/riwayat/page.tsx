@@ -12,15 +12,18 @@ import {
   XCircle,
   ChevronDown,
   ChevronRight,
-  Eye,
   Calendar,
   ShoppingBag,
-  Loader2
+  Loader2,
+  Star,
+  MessageSquare
 } from 'lucide-react';
 import Navbar from '../components/navbar';
 import Footer from '../components/Footer';
 import { getOrders, Order } from '../services/orderService';
 import { formatRupiah } from '../context/CartContext';
+import TestimoniForm from '../components/TestimoniForm';
+import { checkUserReview } from '../services/testimoniService';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -49,6 +52,13 @@ export default function RiwayatPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalOrders, setTotalOrders] = useState(0);
   const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
+  const [showReviewForm, setShowReviewForm] = useState<{
+    pesananId: number;
+    produkId: number;
+    produkNama: string;
+    produkGambar: string;
+  } | null>(null);
+  const [reviewedItems, setReviewedItems] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchOrders();
@@ -61,11 +71,34 @@ export default function RiwayatPage() {
       setOrders(data.orders);
       setTotalPages(data.pagination.totalPages);
       setTotalOrders(data.pagination.total);
+      
+      // Check review status for delivered orders
+      const deliveredOrders = data.orders.filter(o => o.status === 'DELIVERED');
+      for (const order of deliveredOrders) {
+        for (const item of order.items) {
+          await checkReviewStatus(order.id, item.id);
+        }
+      }
     } catch (error) {
       console.error('Error fetching orders:', error);
       alert('Gagal mengambil riwayat pesanan. Silakan coba lagi.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkReviewStatus = async (pesananId: number, produkId: number) => {
+    const key = `${pesananId}-${produkId}`;
+    if (reviewedItems.has(key)) return true;
+    
+    try {
+      const result = await checkUserReview(pesananId, produkId);
+      if (result.reviewed) {
+        setReviewedItems(prev => new Set(prev).add(key));
+      }
+      return result.reviewed;
+    } catch {
+      return false;
     }
   };
 
@@ -227,30 +260,63 @@ export default function RiwayatPage() {
                               Produk yang dipesan
                             </h4>
                             <div className="space-y-3">
-                              {order.items.map((item) => (
-                                <div key={item.id} className="flex gap-4 items-center">
-                                  <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-[#F5F5F5] flex-shrink-0">
-                                    <Image
-                                      src={item.gambar.startsWith('http') ? item.gambar : `${API_URL}${item.gambar}`}
-                                      alt={item.nama_produk}
-                                      fill
-                                      unoptimized
-                                      className="object-cover"
-                                    />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="font-medium text-[#3E2723] text-sm line-clamp-1">
-                                      {item.nama_produk}
+                              {order.items.map((item) => {
+                                const isReviewed = reviewedItems.has(`${order.id}-${item.id}`);
+                                return (
+                                  <div key={item.id} className="flex flex-col gap-2">
+                                    <div className="flex gap-4 items-center">
+                                      <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-[#F5F5F5] flex-shrink-0">
+                                        <Image
+                                          src={item.gambar.startsWith('http') ? item.gambar : `${API_URL}${item.gambar}`}
+                                          alt={item.nama_produk}
+                                          fill
+                                          unoptimized
+                                          className="object-cover"
+                                        />
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-[#3E2723] text-sm line-clamp-1">
+                                          {item.nama_produk}
+                                        </div>
+                                        <div className="text-xs text-[#8D6E63]">
+                                          {item.jumlah} x {formatRupiah(item.harga)}
+                                        </div>
+                                      </div>
+                                      <div className="font-bold text-[#3E2723] text-sm">
+                                        {formatRupiah(item.subtotal)}
+                                      </div>
                                     </div>
-                                    <div className="text-xs text-[#8D6E63]">
-                                      {item.jumlah} x {formatRupiah(item.harga)}
-                                    </div>
+                                    
+                                    {/* Review Button - Only for DELIVERED orders */}
+                                    {order.status === 'DELIVERED' && (
+                                      <div className="flex justify-end">
+                                        {!isReviewed ? (
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setShowReviewForm({
+                                                pesananId: order.id,
+                                                produkId: item.id,
+                                                produkNama: item.nama_produk,
+                                                produkGambar: item.gambar.startsWith('http') ? item.gambar : `${API_URL}${item.gambar}`
+                                              });
+                                            }}
+                                            className="text-xs flex items-center gap-1 text-[#5D4037] hover:text-[#3E2723] font-medium transition px-3 py-1.5 border border-[#5D4037]/30 rounded-full hover:bg-[#5D4037] hover:text-white"
+                                          >
+                                            <MessageSquare size={14} />
+                                            Beri Ulasan
+                                          </button>
+                                        ) : (
+                                          <span className="text-xs flex items-center gap-1 text-green-600 px-3 py-1.5 bg-green-50 rounded-full">
+                                            <Star size={14} className="fill-green-600 text-green-600" />
+                                            Sudah diulas
+                                          </span>
+                                        )}
+                                      </div>
+                                    )}
                                   </div>
-                                  <div className="font-bold text-[#3E2723] text-sm">
-                                    {formatRupiah(item.subtotal)}
-                                  </div>
-                                </div>
-                              ))}
+                                );
+                              })}
                             </div>
                           </div>
 
@@ -317,6 +383,27 @@ export default function RiwayatPage() {
       </section>
 
       <Footer />
+
+      {/* Review Form Modal */}
+      {showReviewForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg">
+            <TestimoniForm
+              pesananId={showReviewForm.pesananId}
+              produkId={showReviewForm.produkId}
+              produkNama={showReviewForm.produkNama}
+              produkGambar={showReviewForm.produkGambar}
+              onSuccess={() => {
+                setShowReviewForm(null);
+                const key = `${showReviewForm.pesananId}-${showReviewForm.produkId}`;
+                setReviewedItems(prev => new Set(prev).add(key));
+                fetchOrders();
+              }}
+              onCancel={() => setShowReviewForm(null)}
+            />
+          </div>
+        </div>
+      )}
     </main>
   );
 }

@@ -7,6 +7,7 @@ import productRoutes from './routes/product.js';
 import checkoutRoutes from './routes/checkout.js';
 import profileRoutes from './routes/profileRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import testimoniRoutes from './routes/testimoniRoutes.js';
 import path from 'path';
 
 const app = express();
@@ -31,6 +32,9 @@ app.use('/api/profile', profileRoutes);
 
 // Register user routes
 app.use('/api/users', userRoutes);
+
+// Register testimoni routes
+app.use('/api/testimoni', testimoniRoutes);
 
 // Setup static folder for uploads
 

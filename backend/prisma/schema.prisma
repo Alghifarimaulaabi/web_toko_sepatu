@@ -37,6 +37,7 @@ model User {
   updatedAt  DateTime @updatedAt
 
   pesanan    Pesanan[]
+  testimoni  Testimoni[]
 }
 
 enum JenisKategori {
@@ -59,6 +60,7 @@ model Produk {
 
   detailPesanan  DetailPesanan[]
   varian         ProdukVarian[]  // baru
+  testimoni      Testimoni[]
 
   // catatan: field `stok` lama dihapus, dipindah ke ProdukVarian
 }
@@ -139,6 +141,8 @@ model Testimoni {
   id            Int      @id @default(autoincrement())
 
   pesanan_id    Int
+  user_id       Int
+  produk_id     Int
 
   nama          String
   rating        Int
@@ -147,4 +151,8 @@ model Testimoni {
   created_at    DateTime @default(now())
 
   pesanan       Pesanan @relation(fields: [pesanan_id], references: [id])
+  user          User    @relation(fields: [user_id], references: [id])
+  produk        Produk  @relation(fields: [produk_id], references: [id])
+
+  @@unique([user_id, produk_id, pesanan_id])
 }

@@ -8,12 +8,12 @@ import Navbar from "../../components/navbar";
 import Footer from "../../components/Footer";
 import LoginModal from "../../components/LoginModal";
 import ProductCheckoutModal from "../../components/ProductCheckoutModal";
-import { Heart, ShoppingBag, Star, ArrowLeft, Truck, ShieldCheck, Undo2 } from "lucide-react";
+import RatingStars from "../../components/RatingStars";
+import { Heart, ShoppingBag, Star, ArrowLeft, Truck, ShieldCheck, Undo2, Loader2 } from "lucide-react";
 import { useWishlist } from "../../context/WishlistContext";
 import { useCart } from "../../context/CartContext";
 import { toast } from "sonner";
-
-import { getProductById } from "../../data/products";
+import { getTestimoniByProduk, Testimoni } from "../../services/testimoniService";
 
 interface ColorOption {
   name: string;
@@ -38,16 +38,7 @@ interface ProdukVarian {
   stok: number;
 }
 
-interface ProdukApiResponse {
-  produk: {
-    id: number;
-    nama_produk: string;
-    deskripsi: string;
-    harga: number;
-    gambar: string;
-    varian: ProdukVarian[];
-  };
-}
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -57,6 +48,12 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
 
   const [product, setProduct] = useState<ProductDetailData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [testimonis, setTestimonis] = useState<Testimoni[]>([]);
+  const [averageRating, setAverageRating] = useState(0);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [testimoniPage, setTestimoniPage] = useState(1);
+  const [testimoniTotalPages, setTestimoniTotalPages] = useState(1);
+  const [loadingTestimonis, setLoadingTestimonis] = useState(false);
 
   const [selectedColor, setSelectedColor] = useState<ColorOption>({
     name: "Sesuai Gambar",
@@ -69,32 +66,51 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [checkoutQuantity, setCheckoutQuantity] = useState(1);
 
+  const numId = Number(id);
+
   useEffect(() => {
-    const numId = Number(id);
-
-
-    // 2. Kalau bukan mock, fetch dari backend
-    fetch(`http://localhost:5000/api/products/${numId}`, { cache: "no-store" })
-      .then((res) => {
-        if (!res.ok) throw new Error("Produk tidak ditemukan");
-        return res.json();
-      })
-      .then((produk) => {
-        setProduct({
-          id: produk.id,
-          title: produk.nama_produk,
-          price: `Rp. ${Number(produk.harga).toLocaleString("id-ID")}`,
-          rating: "5.0",
-          reviews: 0,
-          description: produk.deskripsi,
-          image: `http://localhost:5000${produk.gambar}`,
-          colors: [{ name: "Sesuai Gambar", code: "bg-gray-500" }],
-          sizes: produk.varian ? produk.varian.map((v: any) => v.ukuran) : ["39", "40", "41", "42", "43", "44", "45"],
-        });
-      })
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
+    fetchProduct();
+    fetchTestimonis();
   }, [id]);
+
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_URL}/api/products/${numId}`, { cache: "no-store" });
+      if (!res.ok) throw new Error("Produk tidak ditemukan");
+      const produk = await res.json();
+      setProduct({
+        id: produk.id,
+        title: produk.nama_produk,
+        price: `Rp. ${Number(produk.harga).toLocaleString("id-ID")}`,
+        rating: "5.0",
+        reviews: 0,
+        description: produk.deskripsi,
+        image: produk.gambar.startsWith('http') ? produk.gambar : `${API_URL}${produk.gambar}`,
+        colors: [{ name: "Sesuai Gambar", code: "bg-gray-500" }],
+        sizes: produk.varian ? produk.varian.map((v: any) => v.ukuran) : ["39", "40", "41", "42", "43", "44", "45"],
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchTestimonis = async (page: number = 1) => {
+    try {
+      setLoadingTestimonis(true);
+      const data = await getTestimoniByProduk(numId, page, 5);
+      setTestimonis(data.testimonis);
+      setAverageRating(data.averageRating);
+      setTotalReviews(data.totalReviews);
+      setTestimoniTotalPages(data.pagination.totalPages);
+    } catch (error) {
+      console.error('Error fetching testimonis:', error);
+    } finally {
+      setLoadingTestimonis(false);
+    }
+  };
 
   const handleAction = (action: string) => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -194,8 +210,8 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                 </span>
                 <div className="flex items-center gap-1 text-sm font-bold text-[#3E2723]">
                   <Star size={16} className="fill-[#FFB300] text-[#FFB300]" />
-                  {product.rating}{" "}
-                  <span className="text-[#8D6E63] font-medium">({product.reviews} ulasan)</span>
+                  {averageRating > 0 ? averageRating.toFixed(1) : product.rating}{" "}
+                  <span className="text-[#8D6E63] font-medium">({totalReviews || product.reviews} ulasan)</span>
                 </div>
               </div>
 
@@ -302,6 +318,87 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                   <span className="text-sm font-semibold text-[#3E2723]">Retur 30 Hari</span>
                   <span className="text-xs text-gray-500 text-center sm:text-left">Mudah dan cepat</span>
                 </div>
+              </div>
+
+              {/* Testimonis Section */}
+              <div className="mt-8 pt-8 border-t border-[#D7CCC8]/30">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="font-bold text-[#3E2723] text-lg">Ulasan Pembeli</h3>
+                    {totalReviews > 0 && (
+                      <div className="flex items-center gap-3 mt-1">
+                        <RatingStars rating={averageRating} size={18} />
+                        <span className="text-sm text-[#8D6E63]">
+                          {averageRating.toFixed(1)} dari {totalReviews} ulasan
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {loadingTestimonis ? (
+                  <div className="flex justify-center py-8">
+                    <Loader2 className="animate-spin text-[#8D6E63]" size={28} />
+                  </div>
+                ) : testimonis.length === 0 ? (
+                  <p className="text-[#8D6E63] text-sm py-4">Belum ada ulasan untuk produk ini</p>
+                ) : (
+                  <div className="space-y-4">
+                    {testimonis.map((t) => (
+                      <div key={t.id} className="bg-[#F9F7F5] rounded-xl p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-[#D7CCC8] flex items-center justify-center text-[#5D4037] font-bold">
+                              {t.nama.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <p className="font-medium text-[#3E2723]">{t.nama}</p>
+                              <RatingStars rating={t.rating} size={14} />
+                            </div>
+                          </div>
+                          <span className="text-xs text-[#8D6E63]">
+                            {new Date(t.created_at).toLocaleDateString('id-ID', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })}
+                          </span>
+                        </div>
+                        <p className="text-[#5D4037] mt-2 text-sm leading-relaxed">{t.komentar}</p>
+                      </div>
+                    ))}
+
+                    {testimoniTotalPages > 1 && (
+                      <div className="flex justify-center gap-2 pt-4">
+                        <button
+                          onClick={() => {
+                            const newPage = Math.max(testimoniPage - 1, 1);
+                            setTestimoniPage(newPage);
+                            fetchTestimonis(newPage);
+                          }}
+                          disabled={testimoniPage === 1}
+                          className="px-3 py-1 rounded-full border border-[#D7CCC8] text-sm hover:bg-[#F5F0EB] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Sebelumnya
+                        </button>
+                        <span className="text-sm text-[#8D6E63] flex items-center">
+                          {testimoniPage} / {testimoniTotalPages}
+                        </span>
+                        <button
+                          onClick={() => {
+                            const newPage = Math.min(testimoniPage + 1, testimoniTotalPages);
+                            setTestimoniPage(newPage);
+                            fetchTestimonis(newPage);
+                          }}
+                          disabled={testimoniPage === testimoniTotalPages}
+                          className="px-3 py-1 rounded-full border border-[#D7CCC8] text-sm hover:bg-[#F5F0EB] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Selanjutnya
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
