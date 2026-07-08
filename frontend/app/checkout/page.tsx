@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 import Navbar from "../components/navbar";
 import Footer from "../components/Footer";
-import { useCart, cleanPrice, formatRupiah, type CartItem } from "../context/CartContext"; // sesuaikan path sesuai lokasi file CartContext kamu
+import { useCart, cleanPrice, formatRupiah, type CartItem } from "../context/CartContext"; 
+import { getProfile } from "../services/profileService";
 
 type PaymentMethod = "midtrans" | "cod";
 
@@ -42,6 +43,25 @@ export default function CheckoutPage() {
       scriptElement.async = true;
       document.body.appendChild(scriptElement);
     }
+    
+    // Fetch user profile for address auto-fill
+    const fetchUserProfile = async () => {
+      try {
+        const profile = await getProfile();
+        setAddress(prev => ({
+          ...prev,
+          name: profile.nama || prev.name,
+          phone: profile.no_hp || prev.phone,
+          fullAddress: profile.alamat || prev.fullAddress,
+          city: profile.kota || prev.city,
+          postalCode: profile.kode_pos || prev.postalCode,
+        }));
+      } catch (error) {
+        console.error("Failed to fetch profile for auto-fill", error);
+      }
+    };
+    
+    fetchUserProfile();
   }, []);
 
   const [address, setAddress] = useState({
@@ -115,14 +135,30 @@ const handleSubmit = async (e: React.FormEvent) => {
       }
 
       (window as any).snap.pay(data.token, {
-        onSuccess: function (result: any) {
+        onSuccess: async function (result: any) {
           console.log('Payment success:', result);
+          // Update status pesanan ke PROCESSING
+          try {
+            await fetch("http://localhost:5000/api/orders/update-status", {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                kode_pesanan: data.kodePesanan,
+                status: "PROCESSING"
+              })
+            });
+          } catch (err) {
+            console.error('Failed to update order status:', err);
+          }
           itemsToCheckout.forEach((item) => {
             removeFromCart(item.product.id);
           });
           setCheckoutItems([]);
           alert("Pembayaran berhasil!");
-          window.location.href = `/order-success?order_id=${data.kodePesanan}`;
+          window.location.href = `/riwayat`;
         },
         onPending: function (result: any) {
           console.log('Payment pending:', result);
@@ -131,7 +167,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           });
           setCheckoutItems([]);
           alert("Pembayaran sedang diproses. Silakan selesaikan pembayaran.");
-          window.location.href = `/order-pending?order_id=${data.kodePesanan}`;
+          window.location.href = `/riwayat`;
         },
         onError: function (result: any) {
           console.error('Payment error:', result);
@@ -150,7 +186,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       });
       setCheckoutItems([]);
       alert("Pesanan COD berhasil dibuat!");
-      window.location.href = `/order-success?order_id=${data.kodePesanan}`;
+      window.location.href = `/riwayat`;
     }
   } catch (err: any) {
     console.error('Checkout error:', err);

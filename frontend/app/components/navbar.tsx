@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, LogOut, Heart } from "lucide-react";
+import { ShoppingCart, LogOut, Heart, History } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -104,6 +104,25 @@ const Navbar = () => {
                             </motion.div>
                         </Link>
 
+                        <Link href="/riwayat" className="relative hover:text-white transition group">
+                            <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                                <History size={22} className="group-hover:text-brand-light transition-all" />
+                                <AnimatePresence>
+                                    {cartCount > 0 && (
+                                        <motion.span 
+                                            initial={{ scale: 0, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            exit={{ scale: 0, opacity: 0 }}
+                                            className="absolute -top-1.5 -right-2 bg-brand text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-lg"
+                                        >
+                                            {cartCount}
+                                        </motion.span>
+                                    )}
+                                </AnimatePresence>
+                            </motion.div>
+                        </Link>
+
+
                         <Link href="/keranjang" className="relative hover:text-white transition group">
                             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                                 <ShoppingCart size={22} className="group-hover:text-brand-light transition-all" />
@@ -124,7 +143,9 @@ const Navbar = () => {
 
                         {user ? (
                             <div className="flex items-center gap-4">
-                                <span className="hidden md:block text-sm font-medium font-display tracking-wide">Halo, {user.nama}</span>
+                                <Link href="/profile" className="hidden md:block group cursor-pointer">
+                                    <span className="text-sm font-medium font-display tracking-wide group-hover:text-brand-light transition-colors">Halo, {user.nama}</span>
+                                </Link>
                                 <motion.button 
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}

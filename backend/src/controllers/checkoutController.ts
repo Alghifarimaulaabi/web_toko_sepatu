@@ -147,9 +147,9 @@ export const createCheckout = async (req: AuthRequest, res: Response): Promise<v
         },
         // Tambahkan callbacks untuk redirect
         callbacks: {
-          finish: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/order-success?order_id=${kodePesanan}`,
-          error: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/order-error?order_id=${kodePesanan}`,
-          pending: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/order-pending?order_id=${kodePesanan}`
+          finish: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/riwayat`,
+          error: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/riwayat`,
+          pending: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/riwayat`
         }
       };
 
@@ -218,9 +218,59 @@ export const createCheckout = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    res.status(500).json({
-      message: 'Gagal memproses checkout',
-      error: error.message || String(error)
+res.status(500).json({
+  message: 'Gagal memproses checkout',
+  error: error.message || String(error)
+});
+}
+};
+
+// Webhook for Midtrans Notifications
+export const midtransNotification = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const notificationJson = req.body;
+    
+    const transactionStatus = notificationJson.transaction_status;
+    const fraudStatus = notificationJson.fraud_status;
+    const orderId = notificationJson.order_id;
+
+    console.log(`Notification received for order: ${orderId}, status: ${transactionStatus}, fraud: ${fraudStatus}`);
+
+    const pesanan = await prisma.pesanan.findUnique({
+      where: { kode_pesanan: orderId }
     });
+
+    if (!pesanan) {
+      console.error(`Pesanan not found for orderId: ${orderId}`);
+      res.status(404).json({ message: 'Pesanan tidak ditemukan' });
+      return;
+    }
+
+    let newStatus = pesanan.status;
+
+    if (transactionStatus === 'capture') {
+      if (fraudStatus === 'accept') {
+        newStatus = 'PROCESSING';
+      }
+    } else if (transactionStatus === 'settlement') {
+      newStatus = 'PROCESSING';
+    } else if (transactionStatus === 'cancel' || transactionStatus === 'deny' || transactionStatus === 'expire') {
+      newStatus = 'CANCELLED';
+    } else if (transactionStatus === 'pending') {
+      newStatus = 'PENDING';
+    }
+
+    if (newStatus !== pesanan.status) {
+      await prisma.pesanan.update({
+        where: { id: pesanan.id },
+        data: { status: newStatus as any }
+      });
+      console.log(`Status for order ${orderId} updated to ${newStatus}`);
+    }
+
+    res.status(200).json({ status: 'success' });
+  } catch (error) {
+    console.error('Error handling midtrans notification:', error);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 };

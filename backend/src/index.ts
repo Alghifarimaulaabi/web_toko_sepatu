@@ -2,6 +2,12 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
+import orderRoutes from './routes/orderRoutes.js';
+import productRoutes from './routes/product.js';
+import checkoutRoutes from './routes/checkout.js';
+import profileRoutes from './routes/profileRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import path from 'path';
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -12,15 +18,22 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 
 // Register product routes
-import productRoutes from './routes/product.js';
 app.use('/api/products', productRoutes);
 
 // Register checkout routes
-import checkoutRoutes from './routes/checkout.js';
 app.use('/api/checkout', checkoutRoutes);
 
+// history pemesanan barang
+app.use('/api/orders', orderRoutes);
+
+// Register profile routes
+app.use('/api/profile', profileRoutes);
+
+// Register user routes
+app.use('/api/users', userRoutes);
+
 // Setup static folder for uploads
-import path from 'path';
+
 app.use('/uploads', express.static(path.join(process.cwd(), 'public/uploads')));
 
 app.get('/', (req, res) => {

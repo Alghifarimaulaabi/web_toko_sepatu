@@ -25,6 +25,14 @@ model User {
   password   String
   role       Role     @default(USER)
 
+  // Profile fields
+  foto       String?
+  no_hp      String?
+  alamat     String?
+  kota       String?
+  provinsi   String?
+  kode_pos   String?
+
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -69,6 +77,15 @@ model ProdukVarian {
 
   @@unique([produk_id, warna, ukuran]) // cegah duplikat kombinasi
 }
+
+enum StatusPesanan {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
 model Pesanan {
   id                 Int      @id @default(autoincrement())
 
@@ -90,7 +107,7 @@ model Pesanan {
 
   metode_pembayaran  String
 
-  status             String
+  status             StatusPesanan @default(PENDING) // Ubah dari String ke enum
 
   tanggal_pesanan    DateTime @default(now())
 
@@ -98,6 +115,7 @@ model Pesanan {
   updated_at         DateTime @updatedAt
 
   user               User @relation(fields: [user_id], references: [id])
+  
 
   detailPesanan      DetailPesanan[]
   testimoni          Testimoni[]

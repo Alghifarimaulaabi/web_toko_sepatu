@@ -32,6 +32,13 @@ export function cleanPrice(price: number | string): number {
   return isNaN(num) ? 0 : num;
 }
 
+// Saat user login, dispatch event
+const handleLogin = (userData: any) => {
+  localStorage.setItem('token', userData.token);
+  localStorage.setItem('user', JSON.stringify(userData.user));
+  window.dispatchEvent(new Event('user-auth-change'));
+};
+
 export function formatRupiah(amount: number | string): string {
   const num = typeof amount === "number" ? amount : cleanPrice(amount);
   if (isNaN(num)) return "Rp 0";
