@@ -71,6 +71,7 @@ model ProdukVarian {
   warna       String
   ukuran      String
   stok        Int      @default(0)
+  gambar      String?
 
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
@@ -132,6 +133,8 @@ model DetailPesanan {
   jumlah       Int
   harga        Decimal
   subtotal     Decimal
+  warna        String?
+  ukuran       String?
 
   pesanan      Pesanan @relation(fields: [pesanan_id], references: [id])
   produk       Produk  @relation(fields: [produk_id], references: [id])

@@ -107,18 +107,6 @@ const Navbar = () => {
                         <Link href="/riwayat" className="relative hover:text-white transition group">
                             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                                 <History size={22} className="group-hover:text-brand-light transition-all" />
-                                <AnimatePresence>
-                                    {cartCount > 0 && (
-                                        <motion.span 
-                                            initial={{ scale: 0, opacity: 0 }}
-                                            animate={{ scale: 1, opacity: 1 }}
-                                            exit={{ scale: 0, opacity: 0 }}
-                                            className="absolute -top-1.5 -right-2 bg-brand text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-lg"
-                                        >
-                                            {cartCount}
-                                        </motion.span>
-                                    )}
-                                </AnimatePresence>
                             </motion.div>
                         </Link>
 

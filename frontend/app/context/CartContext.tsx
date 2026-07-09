@@ -6,17 +6,19 @@ import type { Product } from "../data/products";
 export interface CartItem {
   product: Product;
   quantity: number;
+  warna?: string;
+  ukuran?: string;
 }
 
 interface CartContextType {
   cart: CartItem[];
   checkoutItems: CartItem[];
   setCheckoutItems: (items: CartItem[]) => void;
-  addToCart: (product: Product, quantity?: number) => void;
-  removeFromCart: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
-  increaseQuantity: (productId: number) => void;
-  decreaseQuantity: (productId: number) => void;
+  addToCart: (product: Product, quantity?: number, warna?: string, ukuran?: string) => void;
+  removeFromCart: (productId: number, warna?: string, ukuran?: string) => void;
+  updateQuantity: (productId: number, quantity: number, warna?: string, ukuran?: string) => void;
+  increaseQuantity: (productId: number, warna?: string, ukuran?: string) => void;
+  decreaseQuantity: (productId: number, warna?: string, ukuran?: string) => void;
   clearCart: () => void;
   getCartTotal: () => number;
   getCartCount: () => number;
@@ -178,13 +180,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [checkoutItems, isLoaded, userEmail]);
 
-  const addToCart = (product: Product, quantity: number = 1) => {
+  const addToCart = (product: Product, quantity: number = 1, warna?: string, ukuran?: string) => {
     const cleanedProduct = {
       ...product,
       price: cleanPrice(product.price),
     };
     setCart((prev) => {
-      const existingIndex = prev.findIndex((item) => item.product.id === cleanedProduct.id);
+      const existingIndex = prev.findIndex((item) => item.product.id === cleanedProduct.id && item.warna === warna && item.ukuran === ukuran);
       if (existingIndex >= 0) {
         const updated = [...prev];
         updated[existingIndex] = {
@@ -193,37 +195,37 @@ export function CartProvider({ children }: { children: ReactNode }) {
         };
         return updated;
       }
-      return [...prev, { product: cleanedProduct, quantity }];
+      return [...prev, { product: cleanedProduct, quantity, warna, ukuran }];
     });
   };
 
-  const removeFromCart = (productId: number) => {
-    setCart((prev) => prev.filter((item) => item.product.id !== productId));
+  const removeFromCart = (productId: number, warna?: string, ukuran?: string) => {
+    setCart((prev) => prev.filter((item) => !(item.product.id === productId && item.warna === warna && item.ukuran === ukuran)));
   };
 
-  const updateQuantity = (productId: number, quantity: number) => {
+  const updateQuantity = (productId: number, quantity: number, warna?: string, ukuran?: string) => {
     if (quantity < 1) return;
     setCart((prev) =>
       prev.map((item) =>
-        item.product.id === productId ? { ...item, quantity } : item
+        (item.product.id === productId && item.warna === warna && item.ukuran === ukuran) ? { ...item, quantity } : item
       )
     );
   };
 
-  const increaseQuantity = (productId: number) => {
+  const increaseQuantity = (productId: number, warna?: string, ukuran?: string) => {
     setCart((prev) =>
       prev.map((item) =>
-        item.product.id === productId
+        (item.product.id === productId && item.warna === warna && item.ukuran === ukuran)
           ? { ...item, quantity: item.quantity + 1 }
           : item
       )
     );
   };
 
-  const decreaseQuantity = (productId: number) => {
+  const decreaseQuantity = (productId: number, warna?: string, ukuran?: string) => {
     setCart((prev) =>
       prev.map((item) =>
-        item.product.id === productId && item.quantity > 1
+        (item.product.id === productId && item.warna === warna && item.ukuran === ukuran && item.quantity > 1)
           ? { ...item, quantity: item.quantity - 1 }
           : item
       )

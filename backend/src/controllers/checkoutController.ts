@@ -53,6 +53,27 @@ export const createCheckout = async (req: AuthRequest, res: Response): Promise<v
       console.warn('Total mismatch:', { calculatedTotal, receivedTotal: total });
     }
 
+    // Cek Stok Varian
+    for (const item of items) {
+      if (item.warna && item.ukuran) {
+        const varian = await prisma.produkVarian.findFirst({
+          where: { produk_id: Number(item.product.id), warna: item.warna, ukuran: item.ukuran }
+        });
+        if (!varian || varian.stok < item.quantity) {
+          res.status(400).json({ message: `Stok untuk produk ${item.product.nama_produk || item.product.title} varian ${item.warna} - ${item.ukuran} tidak mencukupi.` });
+          return;
+        }
+      } else {
+        const varian = await prisma.produkVarian.findFirst({
+          where: { produk_id: Number(item.product.id) }
+        });
+        if (!varian || varian.stok < item.quantity) {
+          res.status(400).json({ message: `Stok untuk produk ${item.product.nama_produk || item.product.title} tidak mencukupi.` });
+          return;
+        }
+      }
+    }
+
     // Buat kode_pesanan unik
     const kodePesanan = `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
     
@@ -79,7 +100,9 @@ export const createCheckout = async (req: AuthRequest, res: Response): Promise<v
             produk_id: Number(item.product.id),
             jumlah: Number(item.quantity),
             harga: Number(item.product.price),
-            subtotal: Number(item.product.price) * Number(item.quantity)
+            subtotal: Number(item.product.price) * Number(item.quantity),
+            warna: item.warna || null,
+            ukuran: item.ukuran || null
           }))
         }
       },
@@ -89,6 +112,26 @@ export const createCheckout = async (req: AuthRequest, res: Response): Promise<v
     });
 
     console.log('Order created:', pesanan.id);
+
+    // Kurangi stok varian
+    for (const item of items) {
+      if (item.warna && item.ukuran) {
+        await prisma.produkVarian.updateMany({
+          where: { produk_id: Number(item.product.id), warna: item.warna, ukuran: item.ukuran },
+          data: { stok: { decrement: Number(item.quantity) } }
+        });
+      } else {
+        const v = await prisma.produkVarian.findFirst({
+          where: { produk_id: Number(item.product.id) }
+        });
+        if (v) {
+          await prisma.produkVarian.update({
+            where: { id: v.id },
+            data: { stok: { decrement: Number(item.quantity) } }
+          });
+        }
+      }
+    }
 
     if (payment === 'midtrans') {
       // Hitung item subtotal dengan pembulatan

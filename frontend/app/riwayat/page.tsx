@@ -301,7 +301,7 @@ export default function RiwayatPage() {
                                                 produkGambar: item.gambar.startsWith('http') ? item.gambar : `${API_URL}${item.gambar}`
                                               });
                                             }}
-                                            className="text-xs flex items-center gap-1 text-[#5D4037] hover:text-[#3E2723] font-medium transition px-3 py-1.5 border border-[#5D4037]/30 rounded-full hover:bg-[#5D4037] hover:text-white"
+                                            className="text-xs flex items-center gap-1 text-[#5D4037] hover:text-[#3E2723] font-medium transition px-3 py-1.5 border border-[#5D4037]/30 rounded-full hover:bg-[#5D4037"
                                           >
                                             <MessageSquare size={14} />
                                             Beri Ulasan

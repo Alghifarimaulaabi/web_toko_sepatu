@@ -57,16 +57,31 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
 // POST create product
 export const createProduct = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { nama_produk, deskripsi, harga, kategori, stok } = req.body;
+    const { nama_produk, deskripsi, harga, kategori, varian } = req.body;
     
-    if (!req.file) {
+    const files = req.files as Express.Multer.File[] || [];
+    const fotoFile = files.find(f => f.fieldname === 'foto');
+
+    if (!fotoFile) {
       res.status(400).json({ message: 'Foto produk wajib diunggah' });
       return;
     }
 
-    const gambar = `/uploads/${req.file.filename}`;
+    const gambar = `/uploads/${fotoFile.filename}`;
     const parsedHarga = parseFloat(harga);
-    const parsedStok = parseInt(stok || '0');
+    
+    let varianData = [];
+    if (varian) {
+      try {
+        varianData = JSON.parse(varian);
+      } catch (e) {
+        console.error('Error parsing varian:', e);
+      }
+    }
+    
+    if (varianData.length === 0) {
+      varianData = [{ warna: 'Default', ukuran: 'Default', stok: parseInt(req.body.stok || '0') }];
+    }
 
     const newProduct = await prisma.produk.create({
       data: {
@@ -76,11 +91,15 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
         kategori: kategori,
         gambar,
         varian: {
-          create: {
-            warna: 'Default',
-            ukuran: 'Default',
-            stok: parsedStok,
-          }
+          create: varianData.map((v: any, index: number) => {
+            const varianFile = files.find(f => f.fieldname === `varian_foto_${index}`);
+            return {
+              warna: v.warna,
+              ukuran: v.ukuran,
+              stok: parseInt(v.stok),
+              gambar: varianFile ? `/uploads/${varianFile.filename}` : null
+            };
+          })
         }
       },
       include: {
@@ -102,7 +121,7 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
 export const updateProduct = async (req: Request, res: Response): Promise<void> => {
   try {
     const id = parseInt(req.params.id);
-    const { nama_produk, deskripsi, harga, kategori, stok } = req.body;
+    const { nama_produk, deskripsi, harga, kategori, varian } = req.body;
 
     const existingProduct = await prisma.produk.findUnique({
       where: { id },
@@ -115,19 +134,20 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
     }
 
     let gambar = existingProduct.gambar;
-    if (req.file) {
-      // User uploaded a new image, delete the old one
+    const files = req.files as Express.Multer.File[] || [];
+    const fotoFile = files.find(f => f.fieldname === 'foto');
+
+    if (fotoFile) {
       const oldPath = path.join(process.cwd(), 'public', existingProduct.gambar);
       if (fs.existsSync(oldPath)) {
         fs.unlinkSync(oldPath);
       }
-      gambar = `/uploads/${req.file.filename}`;
+      gambar = `/uploads/${fotoFile.filename}`;
     }
 
     const parsedHarga = parseFloat(harga);
-    const parsedStok = parseInt(stok || '0');
 
-    // Update product
+    // Update product basics
     const updatedProduct = await prisma.produk.update({
       where: { id },
       data: {
@@ -139,22 +159,48 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
       }
     });
 
-    // Update stock in the default variant
-    if (existingProduct.varian.length > 0) {
-      await prisma.produkVarian.update({
-        where: { id: existingProduct.varian[0].id },
-        data: { stok: parsedStok }
+    let varianData = [];
+    if (varian) {
+      try {
+        varianData = JSON.parse(varian);
+      } catch (e) {
+        console.error('Error parsing varian:', e);
+      }
+    }
+
+    if (varianData.length > 0) {
+      // For simplicity, delete existing variants and create new ones
+      await prisma.produkVarian.deleteMany({
+        where: { produk_id: id }
       });
-    } else {
-      // If it doesn't have a variant, create one
-      await prisma.produkVarian.create({
-        data: {
-          produk_id: id,
-          warna: 'Default',
-          ukuran: 'Default',
-          stok: parsedStok,
-        }
+      await prisma.produkVarian.createMany({
+        data: varianData.map((v: any, index: number) => {
+          let varianGambar = v.gambar || null;
+          const varianFile = files.find(f => f.fieldname === `varian_foto_${index}`);
+          if (varianFile) {
+            varianGambar = `/uploads/${varianFile.filename}`;
+          }
+          return {
+            produk_id: id,
+            warna: v.warna,
+            ukuran: v.ukuran,
+            stok: parseInt(v.stok),
+            gambar: varianGambar
+          };
+        })
       });
+    } else if (req.body.stok) {
+       // fallback for older requests that just send stok
+       if (existingProduct.varian.length > 0) {
+         await prisma.produkVarian.update({
+           where: { id: existingProduct.varian[0].id },
+           data: { stok: parseInt(req.body.stok) }
+         });
+       } else {
+         await prisma.produkVarian.create({
+           data: { produk_id: id, warna: 'Default', ukuran: 'Default', stok: parseInt(req.body.stok) }
+         });
+       }
     }
 
     res.status(200).json({

@@ -54,7 +54,7 @@ export default function KeranjangPage() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("transfer");
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
-  const [removingId, setRemovingId] = useState<number | null>(null);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -66,10 +66,11 @@ export default function KeranjangPage() {
     }
   }, []);
 
-  const handleRemove = (productId: number) => {
-    setRemovingId(productId);
+  const handleRemove = (productId: number, warna?: string, ukuran?: string) => {
+    const idStr = `${productId}-${warna}-${ukuran}`;
+    setRemovingId(idStr);
     setTimeout(() => {
-      removeFromCart(productId);
+      removeFromCart(productId, warna, ukuran);
       setRemovingId(null);
     }, 300);
   };
@@ -104,7 +105,7 @@ export default function KeranjangPage() {
         <div className="container mx-auto px-4 md:px-6 max-w-7xl">
           {/* Back Link */}
           <Link
-            href="/"
+            href="/produk-pilihan"
             className="inline-flex items-center gap-2 text-[#8D6E63] hover:text-[#5D4037] mb-8 font-semibold transition group"
           >
             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
@@ -153,15 +154,17 @@ export default function KeranjangPage() {
               {/* Left Column: Cart Items */}
               <div className="flex-1 flex flex-col gap-4">
                 <AnimatePresence mode="popLayout">
-                  {cart.map((item, index) => (
+                  {cart.map((item, index) => {
+                    const itemKey = `${item.product.id}-${item.warna}-${item.ukuran}`;
+                    return (
                     <motion.div
-                      key={item.product.id}
+                      key={itemKey}
                       layout
                       initial={{ opacity: 0, x: -30 }}
                       animate={{
-                        opacity: removingId === item.product.id ? 0 : 1,
-                        x: removingId === item.product.id ? 80 : 0,
-                        scale: removingId === item.product.id ? 0.95 : 1,
+                        opacity: removingId === itemKey ? 0 : 1,
+                        x: removingId === itemKey ? 80 : 0,
+                        scale: removingId === itemKey ? 0.95 : 1,
                       }}
                       exit={{ opacity: 0, x: 80, scale: 0.95 }}
                       transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -191,6 +194,11 @@ export default function KeranjangPage() {
                             <p className="text-[#8D6E63] text-sm mt-1 line-clamp-1">
                               {item.product.description}
                             </p>
+                            {(item.warna || item.ukuran) && (
+                                <p className="text-[#5D4037] text-sm mt-1 font-semibold">
+                                  Varian: {item.warna || '-'} / {item.ukuran || '-'}
+                                </p>
+                            )}
                           </div>
 
                           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mt-4">
@@ -199,7 +207,7 @@ export default function KeranjangPage() {
                               <span className="text-sm font-medium text-[#8D6E63]">Jumlah:</span>
                               <div className="flex items-center bg-[#F5F5F5] rounded-xl border border-[#D7CCC8]/50 overflow-hidden">
                                 <button
-                                  onClick={() => decreaseQuantity(item.product.id)}
+                                  onClick={() => decreaseQuantity(item.product.id, item.warna, item.ukuran)}
                                   disabled={item.quantity <= 1}
                                   className="w-10 h-10 flex items-center justify-center text-[#5D4037] hover:bg-[#EFECE7] transition disabled:opacity-40 disabled:cursor-not-allowed"
                                 >
@@ -209,7 +217,7 @@ export default function KeranjangPage() {
                                   {item.quantity}
                                 </span>
                                 <button
-                                  onClick={() => increaseQuantity(item.product.id)}
+                                  onClick={() => increaseQuantity(item.product.id, item.warna, item.ukuran)}
                                   className="w-10 h-10 flex items-center justify-center text-[#5D4037] hover:bg-[#EFECE7] transition"
                                 >
                                   <Plus size={16} />
@@ -223,7 +231,7 @@ export default function KeranjangPage() {
                                 {formatRupiah(cleanPrice(item.product.price) * item.quantity)}
                               </p>
                               <button
-                                onClick={() => handleRemove(item.product.id)}
+                                onClick={() => handleRemove(item.product.id, item.warna, item.ukuran)}
                                 className="p-2.5 rounded-xl text-red-400 hover:text-red-600 hover:bg-red-50 transition group"
                                 title="Hapus dari keranjang"
                               >
@@ -234,7 +242,8 @@ export default function KeranjangPage() {
                         </div>
                       </div>
                     </motion.div>
-                  ))}
+                    );
+                  })}
                 </AnimatePresence>
               </div>
 

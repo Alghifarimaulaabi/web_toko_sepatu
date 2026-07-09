@@ -55,11 +55,14 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
   const [testimoniTotalPages, setTestimoniTotalPages] = useState(1);
   const [loadingTestimonis, setLoadingTestimonis] = useState(false);
 
-  const [selectedColor, setSelectedColor] = useState<ColorOption>({
-    name: "Sesuai Gambar",
-    code: "bg-gray-500",
-  });
-  const [selectedSize, setSelectedSize] = useState("42");
+  const [variants, setVariants] = useState<any[]>([]);
+  const [availableColors, setAvailableColors] = useState<string[]>([]);
+  const [availableSizes, setAvailableSizes] = useState<string[]>([]);
+  const [selectedColor, setSelectedColor] = useState<string>("");
+  const [selectedSize, setSelectedSize] = useState<string>("");
+  const [availableStock, setAvailableStock] = useState<number>(0);
+  const [currentImage, setCurrentImage] = useState<string>("");
+
   const [quantity, setQuantity] = useState(1);
   const [isHovered, setIsHovered] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -73,12 +76,53 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
     fetchTestimonis();
   }, [id]);
 
+  useEffect(() => {
+    if (selectedColor && selectedSize) {
+      const v = variants.find(v => v.warna === selectedColor && v.ukuran === selectedSize);
+      setAvailableStock(v ? v.stok : 0);
+      if (v && v.stok > 0 && quantity > v.stok) {
+        setQuantity(v.stok);
+      }
+    }
+  }, [selectedColor, selectedSize, variants, quantity]);
+
+  useEffect(() => {
+    if (selectedColor && product) {
+      const v = variants.find(v => v.warna === selectedColor && v.gambar);
+      if (v) {
+        setCurrentImage(v.gambar.startsWith('http') ? v.gambar : `${API_URL}${v.gambar}`);
+      } else {
+        setCurrentImage(product.image);
+      }
+    }
+  }, [selectedColor, variants, product]);
+
+  useEffect(() => {
+    fetchProduct();
+    fetchTestimonis();
+  }, [id]);
+
   const fetchProduct = async () => {
     try {
       setLoading(true);
       const res = await fetch(`${API_URL}/api/products/${numId}`, { cache: "no-store" });
       if (!res.ok) throw new Error("Produk tidak ditemukan");
       const produk = await res.json();
+      
+      const v = produk.varian || [];
+      setVariants(v);
+      
+      const colors = Array.from(new Set(v.map((item: any) => item.warna)));
+      const sizes = Array.from(new Set(v.map((item: any) => item.ukuran)));
+      
+      setAvailableColors(colors as string[]);
+      setAvailableSizes(sizes as string[]);
+      
+      if (colors.length > 0) setSelectedColor(colors[0] as string);
+      if (sizes.length > 0) setSelectedSize(sizes[0] as string);
+
+      const mainImage = produk.gambar.startsWith('http') ? produk.gambar : `${API_URL}${produk.gambar}`;
+
       setProduct({
         id: produk.id,
         title: produk.nama_produk,
@@ -86,10 +130,13 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
         rating: "5.0",
         reviews: 0,
         description: produk.deskripsi,
-        image: produk.gambar.startsWith('http') ? produk.gambar : `${API_URL}${produk.gambar}`,
-        colors: [{ name: "Sesuai Gambar", code: "bg-gray-500" }],
-        sizes: produk.varian ? produk.varian.map((v: any) => v.ukuran) : ["39", "40", "41", "42", "43", "44", "45"],
+        image: mainImage,
+        colors: [],
+        sizes: [],
       });
+      if (!currentImage) {
+        setCurrentImage(mainImage);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -120,9 +167,14 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
     }
 
     if (!product) return;
+    
+    if (availableStock < 1) {
+      toast.error("Stok untuk varian ini habis");
+      return;
+    }
 
     if (action === "cart") {
-      addToCart(product, quantity);
+      addToCart(product, quantity, selectedColor, selectedSize);
       toast.success(`${product.title} ditambahkan ke keranjang!`);
     } else if (action === "buy") {
       setCheckoutQuantity(quantity);
@@ -168,7 +220,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                 onMouseLeave={() => setIsHovered(false)}
               >
                 <Image
-                  src={product.image}
+                  src={currentImage || product.image}
                   alt={product.title}
                   fill
                   unoptimized
@@ -197,7 +249,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                       thumb === 1 ? "border-[#5D4037]" : "border-transparent hover:border-[#D7CCC8]"
                     }`}
                   >
-                    <Image src={product.image} alt={`Thumbnail ${thumb}`} fill unoptimized className="object-cover" />
+                    <Image src={currentImage || product.image} alt={`Thumbnail ${thumb}`} fill unoptimized className="object-cover" />
                   </div>
                 ))}
               </div>
@@ -225,33 +277,31 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
               <div className="mb-6">
                 <div className="flex justify-between items-end mb-3">
                   <h3 className="font-bold text-[#3E2723]">Pilih Warna</h3>
-                  <span className="text-sm font-medium text-[#8D6E63]">{selectedColor.name}</span>
                 </div>
-                <div className="flex gap-3">
-                  {product.colors.map((color) => (
+                <div className="flex gap-3 flex-wrap">
+                  {availableColors.map((color) => (
                     <button
-                      key={color.name}
+                      key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`w-12 h-12 rounded-full border-4 flex items-center justify-center transition-all ${
-                        selectedColor.name === color.name ? "border-[#8D6E63] scale-110" : "border-transparent hover:scale-105"
-                      } shadow-sm`}
-                      aria-label={`Pilih warna ${color.name}`}
+                      className={`px-4 py-2 rounded-xl font-bold text-sm transition-all border ${
+                        selectedColor === color
+                          ? "bg-[#8D6E63] text-white border-[#8D6E63] shadow-md"
+                          : "bg-white text-[#5D4037] border-[#D7CCC8] hover:border-[#8D6E63] hover:bg-[#F5F5F5]"
+                      }`}
+                      aria-label={`Pilih warna ${color}`}
                     >
-                      <span className={`w-8 h-8 rounded-full ${color.code} shadow-inner`}></span>
+                      {color}
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div className="mb-8">
+              <div className="mb-6">
                 <div className="flex justify-between items-end mb-3">
-                  <h3 className="font-bold text-[#3E2723]">Pilih Ukuran (EU)</h3>
-                  <Link href="#" className="text-sm font-medium text-[#5D4037] hover:underline">
-                    Panduan Ukuran
-                  </Link>
+                  <h3 className="font-bold text-[#3E2723]">Pilih Ukuran</h3>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  {product.sizes.map((size) => (
+                  {availableSizes.map((size) => (
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
@@ -267,6 +317,10 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                 </div>
               </div>
 
+              <div className="mb-6">
+                 <p className="text-[#3E2723] font-medium">Stok Tersedia: <span className="font-bold text-[#8D6E63]">{availableStock}</span></p>
+              </div>
+
               <div className="flex items-center gap-6 mb-8">
                 <h3 className="font-bold text-[#3E2723]">Kuantitas</h3>
                 <div className="flex items-center bg-[#F5F5F5] rounded-xl border border-[#D7CCC8]/50 overflow-hidden">
@@ -278,7 +332,9 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                   </button>
                   <span className="w-12 text-center font-bold text-[#3E2723]">{quantity}</span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
+                    onClick={() => {
+                       if (quantity < availableStock) setQuantity(quantity + 1);
+                    }}
                     className="w-10 h-10 flex items-center justify-center text-[#5D4037] hover:bg-[#EFECE7] transition font-bold"
                   >
                     +
@@ -415,7 +471,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
           onClose={() => setShowCheckoutModal(false)}
           product={{
             id: product.id,
-            image: product.image,
+            image: currentImage || product.image,
             title: product.title,
             description: product.description,
             price: Number(product.price.replace(/[^0-9]/g, "")),
@@ -429,13 +485,15 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
               {
                 product: {
                   id: product.id,
-                  image: product.image,
+                  image: currentImage || product.image,
                   title: product.title,
                   description: product.description,
                   price: Number(product.price.replace(/[^0-9]/g, "")),
                   rating: Number(product.rating),
                 },
                 quantity: checkoutQuantity,
+                warna: selectedColor,
+                ukuran: selectedSize,
               },
             ]);
             router.push("/checkout");

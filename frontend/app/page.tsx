@@ -14,11 +14,12 @@ export default function Home() {
       {/* Trending Section */}
       <TrendingCard />
       
-      {/* Why Us Section */}
-      <WhyUs />
       
       {/* Product Carousel Section */}
       <ProductCarousel />
+      
+      {/* Why Us Section */}
+      <WhyUs />
       
       {/* Footer Section */}
       <Footer />

@@ -37,41 +37,16 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-white transition flex items-center gap-2 group">
+                <a href="#whyUs" className="hover:text-white transition flex items-center gap-2 group">
                   <span className="w-2 h-2 rounded-full bg-[#8D6E63] group-hover:bg-white transition"></span>
                   Tentang Kami
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="#" className="hover:text-white transition flex items-center gap-2 group">
+                <Link href="/produk-pilihan" className="hover:text-white transition flex items-center gap-2 group">
                   <span className="w-2 h-2 rounded-full bg-[#8D6E63] group-hover:bg-white transition"></span>
                   Katalog Produk
                 </Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-white transition flex items-center gap-2 group">
-                  <span className="w-2 h-2 rounded-full bg-[#8D6E63] group-hover:bg-white transition"></span>
-                  Syarat & Ketentuan
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Customer Service */}
-          <div>
-            <h4 className="text-lg font-bold text-white mb-6 uppercase tracking-wider">Layanan</h4>
-            <ul className="space-y-3">
-              <li>
-                <Link href="#" className="hover:text-white transition">Bantuan & FAQ</Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-white transition">Kebijakan Pengembalian</Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-white transition">Lacak Pesanan</Link>
-              </li>
-              <li>
-                <Link href="#" className="hover:text-white transition">Panduan Ukuran</Link>
               </li>
             </ul>
           </div>

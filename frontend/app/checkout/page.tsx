@@ -154,7 +154,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             console.error('Failed to update order status:', err);
           }
           itemsToCheckout.forEach((item) => {
-            removeFromCart(item.product.id);
+            removeFromCart(item.product.id, item.warna, item.ukuran);
           });
           setCheckoutItems([]);
           alert("Pembayaran berhasil!");
@@ -163,7 +163,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         onPending: function (result: any) {
           console.log('Payment pending:', result);
           itemsToCheckout.forEach((item) => {
-            removeFromCart(item.product.id);
+            removeFromCart(item.product.id, item.warna, item.ukuran);
           });
           setCheckoutItems([]);
           alert("Pembayaran sedang diproses. Silakan selesaikan pembayaran.");
@@ -182,7 +182,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     } else if (payment === "cod") {
       // COD success
       itemsToCheckout.forEach((item) => {
-        removeFromCart(item.product.id);
+        removeFromCart(item.product.id, item.warna, item.ukuran);
       });
       setCheckoutItems([]);
       alert("Pesanan COD berhasil dibuat!");
@@ -247,9 +247,9 @@ const handleSubmit = async (e: React.FormEvent) => {
                 </h2>
 
                 <div className="flex flex-col gap-4">
-                  {itemsToCheckout.map((item: CartItem) => (
+                  {itemsToCheckout.map((item: CartItem, index) => (
                     <div
-                      key={item.product.id}
+                      key={`${item.product.id}-${item.warna}-${item.ukuran}-${index}`}
                       className="flex gap-4 pb-4 border-b border-[#D7CCC8]/40 last:border-0 last:pb-0"
                     >
                       <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-xl overflow-hidden bg-[#F5F5F5] flex-shrink-0">
@@ -270,6 +270,11 @@ const handleSubmit = async (e: React.FormEvent) => {
                           <p className="text-sm text-[#8D6E63] line-clamp-2 mt-0.5">
                             {item.product.description}
                           </p>
+                          {(item.warna || item.ukuran) && (
+                            <p className="text-xs text-[#5D4037] mt-1 font-semibold">
+                              Varian: {item.warna || '-'} / {item.ukuran || '-'}
+                            </p>
+                          )}
                         </div>
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-sm text-[#8D6E63]">

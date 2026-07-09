@@ -3,7 +3,7 @@ import { ShieldCheck, Truck, Clock } from "lucide-react";
 
 export default function WhyUs() {
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-white" id="whyUs">
       <div className="container mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
           
