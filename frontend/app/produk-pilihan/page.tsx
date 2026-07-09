@@ -20,12 +20,12 @@ export default function SelectedProductsPage() {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          const formatted = data.map(p => ({
+          const formatted = data.map((p: any) => ({
             id: p.id,
             image: `http://localhost:5000${p.gambar}`,
             title: p.nama_produk,
             price: `Rp. ${Number(p.harga).toLocaleString('id-ID')}`,
-            rating: "5.0",
+            rating: Number(p.rating ?? 0).toFixed(1),
             kategori: p.kategori,
           }));
           setSelectedProducts(formatted);

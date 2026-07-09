@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Heart, ShoppingBag, Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { trendingProducts } from "../data/products";
 import { useWishlist } from "../context/WishlistContext";
 
 export default function TrendingCard() {
@@ -16,14 +15,19 @@ export default function TrendingCard() {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          const formatted = data.slice(0, 4).map(p => ({
-            id: p.id,
-            image: `http://localhost:5000${p.gambar}`,
-            title: p.nama_produk,
-            price: `Rp. ${Number(p.harga).toLocaleString('id-ID')}`,
-            rating: "5.0",
-            description: p.deskripsi || "",
-          }));
+          const formatted = data
+            .map((p: any) => ({
+              id: p.id,
+              image: `http://localhost:5000${p.gambar}`,
+              title: p.nama_produk,
+              price: `Rp. ${Number(p.harga).toLocaleString('id-ID')}`,
+              rating: Number(p.rating ?? 0),
+              terjual: Number(p.terjual ?? 0),
+              description: p.deskripsi || "",
+            }))
+            .sort((a, b) => (b.rating - a.rating) || (b.terjual - a.terjual) || b.id - a.id)
+            .slice(0, 4);
+
           setTrendingProducts(formatted);
         }
       })
@@ -70,7 +74,7 @@ export default function TrendingCard() {
               {/* Rating */}
               <div className="absolute top-5 right-5 flex items-center gap-1 rounded-full bg-white/95 backdrop-blur-md px-3 py-1.5 text-sm font-bold text-[#3E2723] shadow-md">
                 <Star size={16} className="fill-[#FFB300] text-[#FFB300]" />
-                {product.rating}
+                {product.rating.toFixed(1)}
               </div>
 
               {/* Content Box */}
@@ -81,6 +85,7 @@ export default function TrendingCard() {
                       {product.title}
                     </h3>
                     <p className="text-[#D7CCC8] font-medium text-lg drop-shadow-sm">{product.price}</p>
+                    <p className="text-[#D7CCC8]/80 text-sm mt-1 drop-shadow-sm">Terjual {product.terjual}</p>
                   </div>
 
                   <button 

@@ -14,12 +14,44 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
       },
       orderBy: { created_at: 'desc' }
     });
+
+    const testimonialStats = await prisma.testimoni.groupBy({
+      by: ['produk_id'],
+      _avg: { rating: true },
+      _count: { _all: true }
+    });
+
+    const salesStats = await prisma.detailPesanan.groupBy({
+      by: ['produk_id'],
+      _sum: { jumlah: true }
+    });
+
+    const ratingMap = new Map<number, { rating: number; reviewCount: number }>();
+    testimonialStats.forEach(stat => {
+      ratingMap.set(stat.produk_id, {
+        rating: Number(stat._avg.rating ?? 0),
+        reviewCount: stat._count._all ?? 0
+      });
+    });
+
+    const salesMap = new Map<number, number>();
+    salesStats.forEach(stat => {
+      salesMap.set(stat.produk_id, Number(stat._sum.jumlah ?? 0));
+    });
     
     // Map data so the frontend can easily read 'stok' without dealing with variant array
-    const mappedProducts = products.map(p => ({
-      ...p,
-      stok: p.varian.length > 0 ? p.varian[0].stok : 0,
-    }));
+    const mappedProducts = products.map(p => {
+      const ratingInfo = ratingMap.get(p.id);
+      const terjual = salesMap.get(p.id) ?? 0;
+
+      return {
+        ...p,
+        stok: p.varian[0]?.stok ?? 0,
+        rating: ratingInfo ? Number(ratingInfo.rating.toFixed(1)) : 0,
+        reviewCount: ratingInfo?.reviewCount ?? 0,
+        terjual,
+      };
+    });
 
     res.status(200).json(mappedProducts);
   } catch (error) {
@@ -46,7 +78,7 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
 
     res.status(200).json({
       ...product,
-      stok: product.varian.length > 0 ? product.varian[0].stok : 0,
+      stok: product.varian[0]?.stok ?? 0
     });
   } catch (error) {
     console.error('Error fetching product:', error);
@@ -191,12 +223,18 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
       });
     } else if (req.body.stok) {
        // fallback for older requests that just send stok
-       if (existingProduct.varian.length > 0) {
-         await prisma.produkVarian.update({
-           where: { id: existingProduct.varian[0].id },
-           data: { stok: parseInt(req.body.stok) }
-         });
-       } else {
+       const firstVarian = existingProduct.varian[0];
+
+if (firstVarian) {
+    await prisma.produkVarian.update({
+        where: {
+            id: firstVarian.id
+        },
+        data: {
+            stok: parseInt(req.body.stok)
+        }
+    });
+} else {
          await prisma.produkVarian.create({
            data: { produk_id: id, warna: 'Default', ukuran: 'Default', stok: parseInt(req.body.stok) }
          });

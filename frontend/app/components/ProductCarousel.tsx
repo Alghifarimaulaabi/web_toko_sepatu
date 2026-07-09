@@ -39,7 +39,7 @@ export default function ProductCarousel() {
             image: `http://localhost:5000${p.gambar}`,
             title: p.nama_produk,
             price: `Rp. ${Number(p.harga).toLocaleString("id-ID")}`,
-            rating: "5.0",
+            rating: Number(p.rating ?? 0).toFixed(1),
             description: p.deskripsi,
           }));
           setCarouselProducts(formatted);

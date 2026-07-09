@@ -7,19 +7,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag, Star, TrendingUp, Search, ChevronLeft, ChevronRight } from "lucide-react";
 
-// Expand data to have enough for pagination
-const trendingProducts = [
-  { id: 1, image: "/images/nike-2.jpeg", title: "Nike Air Jordan Force", price: "Rp. 4,500,000", rating: "5.0" },
-  { id: 2, image: "/images/sepatu-1.jpeg", title: "Nike White Blue Premium", price: "Rp. 4,500,000", rating: "5.0" },
-  { id: 3, image: "/images/nike-2.jpeg", title: "Nike Classic Brown", price: "Rp. 3,200,000", rating: "4.9" },
-  { id: 4, image: "/images/sepatu-1.jpeg", title: "Nike Runner Elevate", price: "Rp. 2,800,000", rating: "4.7" },
-  { id: 5, image: "/images/nike-2.jpeg", title: "Nike Air Max Pro", price: "Rp. 3,800,000", rating: "4.8" },
-  { id: 6, image: "/images/sepatu-1.jpeg", title: "Nike Dunk Low Retro", price: "Rp. 2,100,000", rating: "4.9" },
-  { id: 7, image: "/images/nike-2.jpeg", title: "Nike Air Force 1", price: "Rp. 1,500,000", rating: "4.8" },
-  { id: 8, image: "/images/sepatu-1.jpeg", title: "Nike Blazer Mid", price: "Rp. 1,600,000", rating: "4.6" },
-  { id: 9, image: "/images/nike-2.jpeg", title: "Nike React Vision", price: "Rp. 2,300,000", rating: "4.7" },
-];
-
 const ITEMS_PER_PAGE = 6;
 
 export default function TrendingPage() {
@@ -32,22 +19,25 @@ export default function TrendingPage() {
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
-          const formatted = data.map(p => ({
-            id: p.id,
-            image: `http://localhost:5000${p.gambar}`,
-            title: p.nama_produk,
-            price: `Rp. ${Number(p.harga).toLocaleString('id-ID')}`,
-            rating: "5.0",
-          }));
+          const formatted = data
+            .map((p: any) => ({
+              id: p.id,
+              image: `http://localhost:5000${p.gambar}`,
+              title: p.nama_produk,
+              price: `Rp. ${Number(p.harga).toLocaleString('id-ID')}`,
+              rating: Number(p.rating ?? 0),
+              terjual: Number(p.terjual ?? 0),
+            }))
+            .sort((a, b) => (b.rating - a.rating) || (b.terjual - a.terjual) || b.id - a.id);
+
           setTrendingProducts(formatted);
         }
       })
       .catch(err => console.error("Error fetching trending products:", err));
   }, []);
 
-  const filteredProducts = trendingProducts.filter((product) =>
-    product.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = [...trendingProducts]
+    .filter((product) => product.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -114,13 +104,14 @@ export default function TrendingPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-[#2D1B15]/90 via-[#2D1B15]/40 to-transparent"></div>
                   <div className="absolute top-5 right-5 flex items-center gap-1 rounded-full bg-white/95 backdrop-blur-md px-3 py-1.5 text-sm font-bold text-[#3E2723] shadow-md">
                     <Star size={16} className="fill-[#FFB300] text-[#FFB300]" />
-                    {product.rating}
+                    {product.rating.toFixed(1)}
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 p-6 z-20 transform group-hover:-translate-y-2 transition duration-300">
                     <div className="flex justify-between items-end mb-4">
                       <div>
                         <h3 className="font-bold text-2xl text-white mb-1 drop-shadow-md">{product.title}</h3>
                         <p className="text-[#D7CCC8] font-medium text-lg drop-shadow-sm">{product.price}</p>
+                        <p className="text-[#D7CCC8]/80 text-sm mt-1 drop-shadow-sm">Terjual {product.terjual}</p>
                       </div>
                       <button className="text-white hover:text-red-500 bg-white/10 hover:bg-white/20 backdrop-blur-sm p-3 rounded-full transition">
                         <Heart size={24} />
