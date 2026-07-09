@@ -242,7 +242,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
               </div>
 
               <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-                {[1, 2, 3, 4].map((thumb) => (
+                {/* {[1, 2, 3, 4].map((thumb) => (
                   <div
                     key={thumb}
                     className={`relative h-24 w-24 rounded-xl overflow-hidden cursor-pointer border-2 transition ${
@@ -251,7 +251,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                   >
                     <Image src={currentImage || product.image} alt={`Thumbnail ${thumb}`} fill unoptimized className="object-cover" />
                   </div>
-                ))}
+                ))} */}
               </div>
             </div>
 

@@ -402,3 +402,106 @@ export const updateOrderStatusByKode = async (req: AuthRequest, res: Response): 
     });
   }
 };
+
+// Get order stats for dashboard chart
+export const getOrderStats = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    // Check if user is admin
+    if (req.user?.role !== 'ADMIN') {
+      res.status(403).json({ message: 'Akses ditolak. Hanya admin yang dapat mengakses statistik.' });
+      return;
+    }
+
+    // Get sold items details
+    const orderDetails = await prisma.detailPesanan.findMany({
+      where: {
+        pesanan: {
+          status: {
+            in: ['PROCESSING', 'SHIPPED', 'DELIVERED']
+          }
+        }
+      },
+      include: {
+        produk: {
+          select: {
+            nama_produk: true
+          }
+        }
+      }
+    });
+
+    // Group by product name and sum the quantity
+    const statsMap: Record<string, number> = {};
+    orderDetails.forEach(detail => {
+      const productName = detail.produk.nama_produk;
+      if (!statsMap[productName]) {
+        statsMap[productName] = 0;
+      }
+      statsMap[productName] += detail.jumlah;
+    });
+
+    // Convert to array format suitable for recharts
+    const chartData = Object.keys(statsMap).map(name => ({
+      name,
+      terjual: statsMap[name]
+    })).sort((a, b) => b.terjual - a.terjual);
+
+    res.status(200).json(chartData);
+
+  } catch (error: any) {
+    console.error('Error fetching order stats:', error);
+    res.status(500).json({
+      message: 'Gagal mengambil statistik pesanan',
+      error: error.message || String(error)
+    });
+  }
+};
+
+// Get dashboard summary (real data for stat cards)
+export const getDashboardSummary = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (req.user?.role !== 'ADMIN') {
+      res.status(403).json({ message: 'Akses ditolak. Hanya admin yang dapat mengakses.' });
+      return;
+    }
+
+    // Total penjualan (sum of total_harga for sold orders: PROCESSING, SHIPPED, DELIVERED)
+    const salesResult = await prisma.pesanan.aggregate({
+      where: {
+        status: {
+          in: ['PROCESSING', 'SHIPPED', 'DELIVERED']
+        }
+      },
+      _sum: {
+        total_harga: true
+      }
+    });
+    const totalPenjualan = Number(salesResult._sum.total_harga || 0);
+
+    // Total pesanan (all orders)
+    const totalPesanan = await prisma.pesanan.count();
+
+    // Pelanggan aktif (distinct users who have at least one order)
+    const pelangganAktif = await prisma.pesanan.findMany({
+      select: { user_id: true },
+      distinct: ['user_id']
+    });
+
+    // Total ulasan
+    const totalUlasan = await prisma.testimoni.count();
+
+    res.status(200).json({
+      totalPenjualan,
+      totalPesanan,
+      pelangganAktif: pelangganAktif.length,
+      totalUlasan
+    });
+
+  } catch (error: any) {
+    console.error('Error fetching dashboard summary:', error);
+    res.status(500).json({
+      message: 'Gagal mengambil ringkasan dashboard',
+      error: error.message || String(error)
+    });
+  }
+};

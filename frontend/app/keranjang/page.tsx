@@ -55,6 +55,27 @@ export default function KeranjangPage() {
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("transfer");
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [selectedItemKeys, setSelectedItemKeys] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (cart.length > 0 && selectedItemKeys.length === 0) {
+      setSelectedItemKeys(cart.map(item => `${item.product.id}-${item.warna}-${item.ukuran}`));
+    }
+  }, [cart]);
+
+  const toggleItemSelection = (key: string) => {
+    setSelectedItemKeys(prev => 
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedItemKeys.length === cart.length) {
+      setSelectedItemKeys([]);
+    } else {
+      setSelectedItemKeys(cart.map(item => `${item.product.id}-${item.warna}-${item.ukuran}`));
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -75,7 +96,9 @@ export default function KeranjangPage() {
     }, 300);
   };
 
-  const subtotal = getCartTotal();
+  const selectedCartItems = cart.filter(item => selectedItemKeys.includes(`${item.product.id}-${item.warna}-${item.ukuran}`));
+  const subtotal = selectedCartItems.reduce((total, item) => total + cleanPrice(item.product.price) * item.quantity, 0);
+  const selectedCount = selectedCartItems.reduce((count, item) => count + item.quantity, 0);
   const shippingCost = subtotal > 0 ? (subtotal >= 3000000 ? 0 : 25000) : 0;
   const total = subtotal + shippingCost;
 
@@ -153,6 +176,20 @@ export default function KeranjangPage() {
             <div className="flex flex-col lg:flex-row gap-8">
               {/* Left Column: Cart Items */}
               <div className="flex-1 flex flex-col gap-4">
+                {/* Select All Checkbox */}
+                <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm border border-[#D7CCC8]/50 flex items-center gap-3">
+                  <input 
+                    type="checkbox" 
+                    id="selectAll"
+                    className="w-5 h-5 accent-[#5D4037] cursor-pointer"
+                    checked={cart.length > 0 && selectedItemKeys.length === cart.length}
+                    onChange={toggleSelectAll}
+                  />
+                  <label htmlFor="selectAll" className="font-semibold text-[#3E2723] cursor-pointer">
+                    Pilih Semua ({cart.length} produk)
+                  </label>
+                </div>
+
                 <AnimatePresence mode="popLayout">
                   {cart.map((item, index) => {
                     const itemKey = `${item.product.id}-${item.warna}-${item.ukuran}`;
@@ -170,7 +207,13 @@ export default function KeranjangPage() {
                       transition={{ duration: 0.3, delay: index * 0.05 }}
                       className="bg-white rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-sm border border-[#D7CCC8]/50 hover:shadow-lg transition-shadow duration-300"
                     >
-                      <div className="flex flex-col sm:flex-row gap-4 md:gap-6">
+                      <div className="flex flex-col sm:flex-row gap-4 md:gap-6 items-start sm:items-center">
+                        <input 
+                          type="checkbox" 
+                          className="w-5 h-5 accent-[#5D4037] cursor-pointer mt-2 sm:mt-0"
+                          checked={selectedItemKeys.includes(itemKey)}
+                          onChange={() => toggleItemSelection(itemKey)}
+                        />
                         {/* Product Image */}
                         <div className="relative w-full sm:w-32 md:w-36 h-32 md:h-36 rounded-xl md:rounded-2xl overflow-hidden bg-[#F5F5F5] flex-shrink-0 group">
                           <Image
@@ -336,7 +379,7 @@ export default function KeranjangPage() {
                   <div className="flex flex-col gap-3 mb-6">
                     <div className="flex justify-between items-center">
                       <span className="text-[#8D6E63] text-sm">
-                        Subtotal ({cart.reduce((acc, item) => acc + item.quantity, 0)} item)
+                        Subtotal ({selectedCount} item)
                       </span>
                       <span className="font-semibold text-[#3E2723]">{formatRupiah(subtotal)}</span>
                     </div>
@@ -373,10 +416,11 @@ export default function KeranjangPage() {
                   {/* Checkout Button */}
                   <button
                     onClick={() => {
-                      setCheckoutItems(cart);
+                      setCheckoutItems(selectedCartItems);
                       router.push("/checkout");
                     }}
-                    className="w-full bg-gradient-to-r from-[#5D4037] to-[#3E2723] text-white py-4 rounded-xl hover:from-[#3E2723] hover:to-[#3E2723] transition-all duration-300 font-bold text-lg shadow-lg shadow-[#5D4037]/20 hover:shadow-xl hover:shadow-[#5D4037]/30 active:scale-[0.98]"
+                    disabled={selectedItemKeys.length === 0}
+                    className="w-full bg-gradient-to-r from-[#5D4037] to-[#3E2723] text-white py-4 rounded-xl hover:from-[#3E2723] hover:to-[#3E2723] transition-all duration-300 font-bold text-lg shadow-lg shadow-[#5D4037]/20 hover:shadow-xl hover:shadow-[#5D4037]/30 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
                   >
                     Bayar Sekarang
                   </button>

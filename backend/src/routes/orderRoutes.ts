@@ -4,7 +4,9 @@ import {
   getAllOrders,
   getOrderDetail, 
   updateOrderStatus,
-  updateOrderStatusByKode 
+  updateOrderStatusByKode,
+  getOrderStats,
+  getDashboardSummary
 } from '../controllers/orderController.js';
 import { authMiddleware } from '../middleware/auth.js';
 
@@ -12,6 +14,12 @@ const router: Router = Router();
 
 // All routes require authentication
 router.use(authMiddleware as any);
+
+// Get dashboard summary for stat cards (admin only)
+router.get('/admin/summary', getDashboardSummary);
+
+// Get order stats for dashboard chart (admin only)
+router.get('/admin/stats', getOrderStats);
 
 // Get all orders (admin only)
 router.get('/admin/all', getAllOrders);
