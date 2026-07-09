@@ -8,6 +8,8 @@ interface RatingStarsProps {
   size?: number;
   interactive?: boolean;
   onRatingChange?: (rating: number) => void;
+  onMouseEnter?: (index: number) => void;
+  onMouseLeave?: () => void;
   className?: string;
 }
 
