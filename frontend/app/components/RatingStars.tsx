@@ -12,7 +12,6 @@ interface RatingStarsProps {
   onMouseLeave?: () => void;
   className?: string;
 }
-
 export default function RatingStars({
   rating,
   maxRating = 5,

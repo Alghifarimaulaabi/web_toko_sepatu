@@ -77,6 +77,16 @@ export const createTestimoni = async (req: AuthRequest, res: Response): Promise<
       }
     });
 
+    // Create notification for admin
+    await prisma.notifikasi.create({
+      data: {
+        judul: 'Ulasan Baru',
+        pesan: `${pesanan.user.nama} telah memberikan ulasan bintang ${rating}.`,
+        type: 'REVIEW',
+        reference_id: testimoni.id
+      }
+    });
+
     res.status(201).json({ message: 'Ulasan berhasil ditambahkan', testimoni });
   } catch (error: any) {
     console.error('Error creating testimoni:', error);

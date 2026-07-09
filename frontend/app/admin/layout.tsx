@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import AdminNotification from "./components/AdminNotification";
 
 export default function AdminLayout({
   children,
@@ -103,8 +104,15 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8 overflow-y-auto">
-        {children}
+      <main className="flex-1 overflow-y-auto relative">
+        <header className="sticky top-0 z-40 bg-[#FDFBF7]/80 backdrop-blur-md border-b border-[#D7CCC8] px-8 py-4 flex justify-end items-center">
+          <div className="flex items-center gap-4">
+            <AdminNotification />
+          </div>
+        </header>
+        <div className="p-8">
+          {children}
+        </div>
       </main>
     </div>
   );

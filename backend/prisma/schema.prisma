@@ -159,3 +159,13 @@ model Testimoni {
 
   @@unique([user_id, produk_id, pesanan_id])
 }
+
+model Notifikasi {
+  id            Int      @id @default(autoincrement())
+  judul         String
+  pesan         String
+  is_read       Boolean  @default(false)
+  type          String   @default("REVIEW")
+  reference_id  Int?
+  created_at    DateTime @default(now())
+}

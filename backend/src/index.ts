@@ -8,6 +8,7 @@ import checkoutRoutes from './routes/checkout.js';
 import profileRoutes from './routes/profileRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import testimoniRoutes from './routes/testimoniRoutes.js';
+import notifikasiRoutes from './routes/notifikasiRoutes.js';
 import path from 'path';
 
 const app = express();
@@ -35,6 +36,9 @@ app.use('/api/users', userRoutes);
 
 // Register testimoni routes
 app.use('/api/testimoni', testimoniRoutes);
+
+// Register notifikasi routes
+app.use('/api/notifikasi', notifikasiRoutes);
 
 // Setup static folder for uploads
 
