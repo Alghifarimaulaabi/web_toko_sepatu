@@ -18,7 +18,7 @@ export default function TrendingCard() {
           const formatted = data
             .map((p: any) => ({
               id: p.id,
-              image: `http://localhost:5000${p.gambar}`,
+              image: p.gambar,
               title: p.nama_produk,
               price: `Rp. ${Number(p.harga).toLocaleString('id-ID')}`,
               rating: Number(p.rating ?? 0),

@@ -36,7 +36,7 @@ export default function ProductCarousel() {
         if (Array.isArray(data)) {
           const formatted: CarouselProduct[] = data.slice(0, 8).map((p: any) => ({
             id: p.id,
-            image: `http://localhost:5000${p.gambar}`,
+            image: p.gambar,
             title: p.nama_produk,
             price: `Rp. ${Number(p.harga).toLocaleString("id-ID")}`,
             rating: Number(p.rating ?? 0).toFixed(1),

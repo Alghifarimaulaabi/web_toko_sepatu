@@ -42,7 +42,7 @@ export default function ProfilePage() {
         kode_pos: data.kode_pos || "",
       });
       if (data.foto) {
-        setFotoPreview(`http://localhost:5000${data.foto}`);
+        setFotoPreview(data.foto);
       }
     } catch (error: any) {
       console.error("Error fetching profile:", error);

@@ -261,13 +261,11 @@ export const deleteProduct = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    // Delete image file
-    const imagePath = path.join(process.cwd(), 'public', product.gambar);
-    if (fs.existsSync(imagePath)) {
-      fs.unlinkSync(imagePath);
-    }
+    // Delete related records first to avoid foreign key constraints
+    await prisma.testimoni.deleteMany({ where: { produk_id: id } });
+    await prisma.detailPesanan.deleteMany({ where: { produk_id: id } });
 
-    // Since in schema ProdukVarian has onDelete: Cascade, deleting Produk will delete its variants
+    // Delete product (ProdukVarian will cascade automatically)
     await prisma.produk.delete({
       where: { id }
     });

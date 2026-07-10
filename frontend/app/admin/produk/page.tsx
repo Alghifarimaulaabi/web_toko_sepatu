@@ -137,7 +137,7 @@ export default function AdminProduk() {
                     <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4">
                         <img
-                          src={`http://localhost:5000${product.gambar}`}
+                          src={product.gambar}
                           alt={product.nama_produk}
                           className="w-16 h-16 object-cover rounded-md"
                         />

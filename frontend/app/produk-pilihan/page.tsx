@@ -22,7 +22,7 @@ export default function SelectedProductsPage() {
         if (Array.isArray(data)) {
           const formatted = data.map((p: any) => ({
             id: p.id,
-            image: `http://localhost:5000${p.gambar}`,
+            image: p.gambar,
             title: p.nama_produk,
             price: `Rp. ${Number(p.harga).toLocaleString('id-ID')}`,
             rating: Number(p.rating ?? 0).toFixed(1),

@@ -203,7 +203,7 @@ export default function EditProduk() {
                 <div className="flex-1">
                   <label className="block text-xs font-medium text-gray-700 mb-1">Gambar (ops)</label>
                   {v.gambar_url && !v.file && (
-                    <img src={`http://localhost:5000${v.gambar_url}`} alt="Variant" className="w-8 h-8 object-cover mb-1 rounded" />
+                    <img src={v.gambar_url} alt="Variant" className="w-8 h-8 object-cover mb-1 rounded" />
                   )}
                   <input type="file" accept="image/*" onChange={(e) => handleVariantFileChange(index, e)} className="w-full border border-gray-300 rounded-md p-1 text-sm" />
                 </div>
@@ -231,7 +231,7 @@ export default function EditProduk() {
             {currentFotoUrl && (
               <div className="mb-2">
                 <p className="text-xs text-gray-500 mb-1">Foto saat ini:</p>
-                <img src={`http://localhost:5000${currentFotoUrl}`} alt="Current" className="w-24 h-24 object-cover rounded-md border" />
+                <img src={currentFotoUrl} alt="Current" className="w-24 h-24 object-cover rounded-md border" />
               </div>
             )}
             <input 
