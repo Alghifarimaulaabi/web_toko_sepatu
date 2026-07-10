@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { PrismaClient } from '../../generated/prisma/client.ts';
+import { PrismaClient } from '../../generated/prisma/client.js';
 
 const prisma = new PrismaClient();
 
@@ -7,7 +7,6 @@ const prisma = new PrismaClient();
 export const getAllProduk = async (req: Request, res: Response): Promise<void> => {
   try {
     const produk = await prisma.produk.findMany({
-      include: { kategori: true },
       orderBy: { id: 'desc' },
     });
     res.status(200).json(produk);
@@ -23,7 +22,6 @@ export const getProdukById = async (req: Request, res: Response): Promise<void> 
     const { id } = req.params;
     const produk = await prisma.produk.findUnique({
       where: { id: Number(id) },
-      include: { kategori: true },
     });
 
     if (!produk) {
@@ -40,10 +38,12 @@ export const getProdukById = async (req: Request, res: Response): Promise<void> 
 // POST create produk
 export const createProduk = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { nama_produk, deskripsi, harga, kategori_id } = req.body;
-    const gambar = req.file ? `/uploads/${req.file.filename}` : '';
+    const { nama_produk, deskripsi, harga, kategori_id, kategori } = req.body;
+    const gambar = req.file ? req.file.path : '';
 
-    if (!nama_produk || !harga || !kategori_id) {
+    const categoryVal = kategori || kategori_id;
+
+    if (!nama_produk || !harga || !categoryVal) {
       res.status(400).json({ message: 'Nama produk, harga, dan kategori wajib diisi' });
       return;
     }
@@ -53,10 +53,9 @@ export const createProduk = async (req: Request, res: Response): Promise<void> =
         nama_produk,
         deskripsi: deskripsi || '',
         harga: Number(harga),
-        kategori_id: Number(kategori_id),
+        kategori: categoryVal,
         gambar,
       },
-      include: { kategori: true },
     });
 
     res.status(201).json({ message: 'Produk berhasil ditambahkan', produk });
@@ -70,19 +69,19 @@ export const createProduk = async (req: Request, res: Response): Promise<void> =
 export const updateProduk = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { nama_produk, deskripsi, harga, kategori_id } = req.body;
+    const { nama_produk, deskripsi, harga, kategori_id, kategori } = req.body;
+    const categoryVal = kategori || kategori_id;
 
     const updateData: Record<string, unknown> = {};
     if (nama_produk) updateData.nama_produk = nama_produk;
     if (deskripsi !== undefined) updateData.deskripsi = deskripsi;
     if (harga) updateData.harga = Number(harga);
-    if (kategori_id) updateData.kategori_id = Number(kategori_id);
-    if (req.file) updateData.gambar = `/uploads/${req.file.filename}`;
+    if (categoryVal) updateData.kategori = categoryVal;
+    if (req.file) updateData.gambar = req.file.path;
 
     const produk = await prisma.produk.update({
       where: { id: Number(id) },
       data: updateData,
-      include: { kategori: true },
     });
 
     res.status(200).json({ message: 'Produk berhasil diperbarui', produk });

@@ -448,7 +448,7 @@ export const getOrderStats = async (req: AuthRequest, res: Response): Promise<vo
     const chartData = Object.keys(statsMap).map(name => ({
       name,
       terjual: statsMap[name]
-    })).sort((a, b) => b.terjual - a.terjual);
+    })).sort((a, b) => (b.terjual || 0) - (a.terjual || 0));
 
     res.status(200).json(chartData);
 

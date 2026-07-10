@@ -72,7 +72,7 @@ export const createTestimoni = async (req: AuthRequest, res: Response): Promise<
 
     let gambarPath = null;
     if (req.file) {
-      gambarPath = `/uploads/${req.file.filename}`;
+      gambarPath = req.file.path;
     }
 
     const testimoni = await prisma.testimoni.create({

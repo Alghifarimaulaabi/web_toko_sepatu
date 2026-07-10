@@ -55,16 +55,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
 
     // Check if a file is uploaded
     if (req.file) {
-      fotoUrl = `/uploads/${req.file.filename}`;
-      
-      // Optional: Delete old photo if it exists
-      const oldUser = await prisma.user.findUnique({ where: { id: userId }, select: { foto: true } });
-      if (oldUser?.foto && oldUser.foto.startsWith('/uploads/')) {
-        const oldFilePath = path.join(process.cwd(), 'public', oldUser.foto);
-        if (fs.existsSync(oldFilePath)) {
-          fs.unlinkSync(oldFilePath);
-        }
-      }
+      fotoUrl = req.file.path;
     }
 
     const updatedData: any = {};

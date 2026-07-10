@@ -63,7 +63,7 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
 // GET a single product
 export const getProductById = async (req: Request, res: Response): Promise<void> => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     const product = await prisma.produk.findUnique({
       where: { id },
       include: {
@@ -99,7 +99,7 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const gambar = `/uploads/${fotoFile.filename}`;
+    const gambar = fotoFile.path;
     const parsedHarga = parseFloat(harga);
     
     let varianData = [];
@@ -152,7 +152,7 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
 // PUT update product
 export const updateProduct = async (req: Request, res: Response): Promise<void> => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     const { nama_produk, deskripsi, harga, kategori, varian } = req.body;
 
     const existingProduct = await prisma.produk.findUnique({
@@ -170,11 +170,7 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
     const fotoFile = files.find(f => f.fieldname === 'foto');
 
     if (fotoFile) {
-      const oldPath = path.join(process.cwd(), 'public', existingProduct.gambar);
-      if (fs.existsSync(oldPath)) {
-        fs.unlinkSync(oldPath);
-      }
-      gambar = `/uploads/${fotoFile.filename}`;
+      gambar = fotoFile.path;
     }
 
     const parsedHarga = parseFloat(harga);
@@ -254,7 +250,7 @@ if (firstVarian) {
 // DELETE product
 export const deleteProduct = async (req: Request, res: Response): Promise<void> => {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(req.params.id as string);
     
     const product = await prisma.produk.findUnique({
       where: { id }
