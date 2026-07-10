@@ -11,6 +11,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+   directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -150,6 +151,8 @@ model Testimoni {
   nama          String
   rating        Int
   komentar      String
+  gambar        String?
+  balasan       String?
 
   created_at    DateTime @default(now())
 

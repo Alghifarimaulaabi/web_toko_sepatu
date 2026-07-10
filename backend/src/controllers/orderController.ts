@@ -190,7 +190,9 @@ export const getUserOrders = async (req: AuthRequest, res: Response): Promise<vo
           order.status = newStatus; // update the local object so response is correct
         }
       } catch (err: any) {
-        console.error(`Failed to sync midtrans status for order ${order.kode_pesanan}:`, err.message);
+        if (!err.message?.includes('404')) {
+          console.error(`Failed to sync midtrans status for order ${order.kode_pesanan}:`, err.message);
+        }
       }
     }
 
@@ -295,7 +297,9 @@ export const getOrderDetail = async (req: AuthRequest, res: Response): Promise<v
           formattedOrder.status = newStatus;
         }
       } catch (err: any) {
-        console.error(`Failed to sync midtrans status for order ${formattedOrder.kode_pesanan}:`, err.message);
+        if (!err.message?.includes('404')) {
+          console.error(`Failed to sync midtrans status for order ${formattedOrder.kode_pesanan}:`, err.message);
+        }
       }
     }
 

@@ -14,13 +14,17 @@ export const createTestimoni = async (req: AuthRequest, res: Response): Promise<
     }
 
     const { pesanan_id, produk_id, rating, komentar } = req.body;
+    
+    const pesananIdNum = Number(pesanan_id);
+    const produkIdNum = Number(produk_id);
+    const ratingNum = Number(rating);
 
     if (!pesanan_id || !produk_id || !rating || !komentar) {
       res.status(400).json({ message: 'Semua field wajib diisi (pesanan_id, produk_id, rating, komentar)' });
       return;
     }
 
-    if (rating < 1 || rating > 5) {
+    if (ratingNum < 1 || ratingNum > 5) {
       res.status(400).json({ message: 'Rating harus antara 1-5' });
       return;
     }
@@ -28,7 +32,7 @@ export const createTestimoni = async (req: AuthRequest, res: Response): Promise<
     // Check pesanan belongs to user and is DELIVERED
     const pesanan = await prisma.pesanan.findFirst({
       where: {
-        id: pesanan_id,
+        id: pesananIdNum,
         user_id: userId,
         status: 'DELIVERED'
       },
@@ -44,7 +48,7 @@ export const createTestimoni = async (req: AuthRequest, res: Response): Promise<
     }
 
     // Check produk is part of the order
-    const produkInOrder = pesanan.detailPesanan.find(d => d.produk_id === produk_id);
+    const produkInOrder = pesanan.detailPesanan.find(d => d.produk_id === produkIdNum);
     if (!produkInOrder) {
       res.status(400).json({ message: 'Produk tidak ada dalam pesanan ini' });
       return;
@@ -55,8 +59,8 @@ export const createTestimoni = async (req: AuthRequest, res: Response): Promise<
       where: {
         user_id_produk_id_pesanan_id: {
           user_id: userId,
-          produk_id: produk_id,
-          pesanan_id: pesanan_id
+          produk_id: produkIdNum,
+          pesanan_id: pesananIdNum
         }
       }
     });
@@ -66,14 +70,20 @@ export const createTestimoni = async (req: AuthRequest, res: Response): Promise<
       return;
     }
 
+    let gambarPath = null;
+    if (req.file) {
+      gambarPath = `/uploads/${req.file.filename}`;
+    }
+
     const testimoni = await prisma.testimoni.create({
       data: {
-        pesanan_id,
+        pesanan_id: pesananIdNum,
         user_id: userId,
-        produk_id,
+        produk_id: produkIdNum,
         nama: pesanan.user.nama,
-        rating,
-        komentar
+        rating: ratingNum,
+        komentar,
+        gambar: gambarPath
       }
     });
 
@@ -267,5 +277,33 @@ export const deleteTestimoni = async (req: AuthRequest, res: Response): Promise<
   } catch (error: any) {
     console.error('Error deleting testimoni:', error);
     res.status(500).json({ message: 'Gagal menghapus ulasan', error: error.message });
+  }
+};
+
+// Admin: Reply to a review
+export const replyTestimoni = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (req.user?.role !== 'ADMIN') {
+      res.status(403).json({ message: 'Akses ditolak' });
+      return;
+    }
+
+    const { id } = req.params;
+    const { balasan } = req.body;
+
+    if (!balasan) {
+      res.status(400).json({ message: 'Balasan wajib diisi' });
+      return;
+    }
+
+    const testimoni = await prisma.testimoni.update({
+      where: { id: Number(id) },
+      data: { balasan }
+    });
+
+    res.status(200).json({ message: 'Balasan berhasil dikirim', testimoni });
+  } catch (error: any) {
+    console.error('Error replying to testimoni:', error);
+    res.status(500).json({ message: 'Gagal membalas ulasan', error: error.message });
   }
 };

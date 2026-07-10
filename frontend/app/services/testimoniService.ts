@@ -8,6 +8,8 @@ export interface Testimoni {
   nama: string;
   rating: number;
   komentar: string;
+  gambar?: string;
+  balasan?: string;
   created_at: string;
   user?: {
     nama: string;
@@ -50,12 +52,7 @@ export interface AdminTestimoniResponse {
 }
 
 // User: Create a review
-export const createTestimoni = async (data: {
-  pesanan_id: number;
-  produk_id: number;
-  rating: number;
-  komentar: string;
-}): Promise<{ message: string; testimoni: Testimoni }> => {
+export const createTestimoni = async (data: FormData): Promise<{ message: string; testimoni: Testimoni }> => {
   const token = localStorage.getItem('token');
   if (!token) {
     throw new Error('Silakan login terlebih dahulu');
@@ -64,10 +61,9 @@ export const createTestimoni = async (data: {
   const response = await fetch(`${API_URL}/api/testimoni`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
+      'Authorization': `Bearer ${token}`
     },
-    body: JSON.stringify(data)
+    body: data
   });
 
   if (!response.ok) {
@@ -192,6 +188,30 @@ export const deleteTestimoni = async (id: number): Promise<{ message: string }> 
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || 'Gagal menghapus ulasan');
+  }
+
+  return response.json();
+};
+
+// Admin: Reply to a review
+export const replyTestimoni = async (id: number, balasan: string): Promise<{ message: string; testimoni: Testimoni }> => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Silakan login terlebih dahulu');
+  }
+
+  const response = await fetch(`${API_URL}/api/testimoni/admin/reply/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ balasan })
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Gagal membalas ulasan');
   }
 
   return response.json();

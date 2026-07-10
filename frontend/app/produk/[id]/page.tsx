@@ -421,6 +421,17 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                           </span>
                         </div>
                         <p className="text-[#5D4037] mt-2 text-sm leading-relaxed">{t.komentar}</p>
+                        {t.gambar && (
+                          <div className="mt-3 relative w-32 h-32 rounded-xl overflow-hidden border border-[#D7CCC8]">
+                            <Image src={t.gambar.startsWith('http') ? t.gambar : `${API_URL}${t.gambar}`} alt="Foto Ulasan" fill unoptimized className="object-cover" />
+                          </div>
+                        )}
+                        {t.balasan && (
+                          <div className="mt-4 bg-white rounded-lg p-3 border-l-4 border-[#8D6E63]">
+                            <p className="text-xs font-bold text-[#8D6E63] mb-1">Balasan Penjual:</p>
+                            <p className="text-sm text-[#3E2723]">{t.balasan}</p>
+                          </div>
+                        )}
                       </div>
                     ))}
 

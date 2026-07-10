@@ -69,8 +69,8 @@ const Navbar = () => {
                     
                     {/* Desktop Nav */}
                     <ul className="hidden md:flex gap-8 font-medium text-[15px] text-white/90">
-                        {['Beranda', 'Produk Pilihan', 'Sedang Tren'].map((item, index) => {
-                            const paths = ['/', '/produk-pilihan', '/trending'];
+                        {['Beranda', 'Produk Pilihan', 'Sedang Tren', 'Kenapa Kami'].map((item, index) => {
+                            const paths = ['/', '/produk-pilihan', '/trending', '#whyUs'];
                             return (
                                 <li key={item}>
                                     <Link href={paths[index]} className="relative group py-2 font-display tracking-wide">

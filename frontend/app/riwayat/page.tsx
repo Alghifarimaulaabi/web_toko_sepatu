@@ -260,10 +260,10 @@ export default function RiwayatPage() {
                               Produk yang dipesan
                             </h4>
                             <div className="space-y-3">
-                              {order.items.map((item) => {
+                              {order.items.map((item, index) => {
                                 const isReviewed = reviewedItems.has(`${order.id}-${item.id}`);
                                 return (
-                                  <div key={item.id} className="flex flex-col gap-2">
+                                  <div key={`${item.id}-${index}`} className="flex flex-col gap-2">
                                     <div className="flex gap-4 items-center">
                                       <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-[#F5F5F5] flex-shrink-0">
                                         <Image

@@ -27,6 +27,7 @@ interface Product {
 export default function AdminProduk() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
   const fetchProducts = async () => {
@@ -53,6 +54,10 @@ export default function AdminProduk() {
 
   const totalStok = (varian: ProdukVarian[]) =>
     varian.reduce((sum, v) => sum + v.stok, 0);
+
+  const filteredProducts = products.filter((product) =>
+    product.nama_produk.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleDelete = async (id: number) => {
     if (!confirm('Yakin ingin menghapus produk ini?')) return;
@@ -94,6 +99,17 @@ export default function AdminProduk() {
       </div>
 
       <div className="bg-white p-6 rounded-xl border border-[#D7CCC8] shadow-sm">
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Cari produk</label>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Masukkan nama barang"
+            className="w-full max-w-md border border-gray-300 rounded-md p-2 focus:ring-[#5D4037] focus:border-[#5D4037]"
+          />
+        </div>
+
         {loading ? (
           <p>Loading data...</p>
         ) : (
@@ -110,14 +126,14 @@ export default function AdminProduk() {
                 </tr>
               </thead>
               <tbody>
-                {products.length === 0 ? (
+                {filteredProducts.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-4 text-center text-gray-500">
-                      Belum ada produk
+                      {searchTerm ? 'Tidak ada produk yang sesuai pencarian' : 'Belum ada produk'}
                     </td>
                   </tr>
                 ) : (
-                  products.map((product) => (
+                  filteredProducts.map((product) => (
                     <tr key={product.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4">
                         <img

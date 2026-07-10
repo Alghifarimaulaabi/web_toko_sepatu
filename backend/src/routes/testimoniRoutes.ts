@@ -5,9 +5,11 @@ import {
   checkUserReview,
   getAllTestimoniAdmin,
   getTestimoniByProdukAdmin,
-  deleteTestimoni
+  deleteTestimoni,
+  replyTestimoni
 } from '../controllers/testimoniController.js';
 import { authMiddleware } from '../middleware/auth.js';
+import { upload } from '../middleware/upload.js';
 
 const router: Router = Router();
 
@@ -15,7 +17,7 @@ const router: Router = Router();
 router.get('/produk/:produkId', getTestimoniByProduk);
 
 // Auth required: Create a review
-router.post('/', authMiddleware as any, createTestimoni);
+router.post('/', authMiddleware as any, upload.single('gambar'), createTestimoni);
 
 // Auth required: Check if user already reviewed
 router.get('/check/:pesananId/:produkId', authMiddleware as any, checkUserReview);
@@ -28,5 +30,8 @@ router.get('/admin/produk/:produkId', authMiddleware as any, getTestimoniByProdu
 
 // Admin: Delete a review
 router.delete('/admin/:id', authMiddleware as any, deleteTestimoni);
+
+// Admin: Reply to a review
+router.put('/admin/reply/:id', authMiddleware as any, replyTestimoni);
 
 export default router;

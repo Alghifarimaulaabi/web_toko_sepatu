@@ -16,9 +16,10 @@ export default function TambahProduk() {
     kategori: 'RUNNING',
   });
   const [foto, setFoto] = useState<File | null>(null);
-  const [variants, setVariants] = useState<any[]>([{ warna: '', ukuran: '', stok: '', file: null }]);
+  const [fotoPreview, setFotoPreview] = useState<string | null>(null);
+  const [variants, setVariants] = useState<any[]>([{ warna: '', ukuran: '', stok: '', file: null, preview: null }]);
 
-  const addVariant = () => setVariants([...variants, { warna: '', ukuran: '', stok: '', file: null }]);
+  const addVariant = () => setVariants([...variants, { warna: '', ukuran: '', stok: '', file: null, preview: null }]);
   const removeVariant = (index: number) => {
     if (variants.length > 1) {
       setVariants(variants.filter((_, i) => i !== index));
@@ -31,15 +32,22 @@ export default function TambahProduk() {
   };
   const handleVariantFileChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const previewUrl = URL.createObjectURL(file);
       const newVariants = [...variants];
-      newVariants[index] = { ...newVariants[index], file: e.target.files[0] };
+      newVariants[index] = { ...newVariants[index], file, preview: previewUrl };
       setVariants(newVariants);
     }
   };
 
   useEffect(() => {
     // Categories are now enum, no need to fetch
-  }, []);
+    return () => {
+      if (fotoPreview?.startsWith('blob:')) {
+        URL.revokeObjectURL(fotoPreview);
+      }
+    };
+  }, [fotoPreview]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -47,7 +55,15 @@ export default function TambahProduk() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFoto(e.target.files[0]);
+      const file = e.target.files[0];
+      const previewUrl = URL.createObjectURL(file);
+      setFoto(file);
+      setFotoPreview((prev) => {
+        if (prev?.startsWith('blob:')) {
+          URL.revokeObjectURL(prev);
+        }
+        return previewUrl;
+      });
     }
   };
 
@@ -173,6 +189,9 @@ export default function TambahProduk() {
                 <div className="flex-1">
                   <label className="block text-xs font-medium text-gray-700 mb-1">Gambar (ops)</label>
                   <input type="file" accept="image/*" onChange={(e) => handleVariantFileChange(index, e)} className="w-full border border-gray-300 rounded-md p-1 text-sm" />
+                  {v.preview && (
+                    <img src={v.preview} alt={`Preview varian ${index + 1}`} className="mt-2 h-16 w-16 object-cover rounded-md border border-gray-200" />
+                  )}
                 </div>
                 {variants.length > 1 && (
                   <button type="button" onClick={() => removeVariant(index)} className="bg-red-500 text-white p-2 rounded text-sm mb-0.5">X</button>
@@ -202,6 +221,11 @@ export default function TambahProduk() {
               onChange={handleFileChange}
               className="w-full border border-gray-300 rounded-md p-2"
             />
+            {fotoPreview && (
+              <div className="mt-3">
+                <img src={fotoPreview} alt="Preview foto produk" className="h-32 w-32 object-cover rounded-md border border-gray-200" />
+              </div>
+            )}
           </div>
 
           <div className="pt-4">

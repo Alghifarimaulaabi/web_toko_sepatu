@@ -14,7 +14,7 @@ import {
   Calendar,
   Package
 } from 'lucide-react';
-import { getAdminTestimoniByProduk, deleteTestimoni, Testimoni } from '../../../services/testimoniService';
+import { getAdminTestimoniByProduk, deleteTestimoni, replyTestimoni, Testimoni } from '../../../services/testimoniService';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -26,6 +26,8 @@ export default function AdminTestimoniDetail({ params }: { params: Promise<{ id:
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState<number | null>(null);
   const [productName, setProductName] = useState<string>('');
+  const [replyingId, setReplyingId] = useState<number | null>(null);
+  const [replyText, setReplyText] = useState<string>('');
 
   useEffect(() => {
     fetchData();
@@ -59,6 +61,20 @@ export default function AdminTestimoniDetail({ params }: { params: Promise<{ id:
       alert(error.message || 'Gagal menghapus ulasan');
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleReply = async (testimoniId: number) => {
+    if (!replyText.trim()) return;
+    try {
+      await replyTestimoni(testimoniId, replyText);
+      setTestimonis(prev => prev.map(t => 
+        t.id === testimoniId ? { ...t, balasan: replyText } : t
+      ));
+      setReplyText('');
+      setReplyingId(null);
+    } catch (error: any) {
+      alert(error.message || 'Gagal membalas ulasan');
     }
   };
 
@@ -122,14 +138,15 @@ export default function AdminTestimoniDetail({ params }: { params: Promise<{ id:
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                 {/* User Info */}
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-full bg-[#F5F5F5] flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-[#F5F5F5] flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {testimoni.user?.foto ? (
                       <Image
-                        src={testimoni.user.foto}
+                        src={testimoni.user.foto.startsWith('http') ? testimoni.user.foto : `${API_URL}${testimoni.user.foto}`}
                         alt={testimoni.user.nama}
                         width={48}
                         height={48}
-                        className="rounded-full object-cover"
+                        className="rounded-full object-cover w-full h-full"
+                        unoptimized
                       />
                     ) : (
                       <User className="text-[#8D6E63]" size={24} />
@@ -177,6 +194,58 @@ export default function AdminTestimoniDetail({ params }: { params: Promise<{ id:
               {/* Komentar */}
               <div className="mt-4 p-4 bg-[#F9F7F5] rounded-xl">
                 <p className="text-[#3E2723] leading-relaxed">{testimoni.komentar}</p>
+                {testimoni.gambar && (
+                  <div className="mt-3 relative w-32 h-32 rounded-xl overflow-hidden border border-[#D7CCC8]">
+                    <Image src={testimoni.gambar.startsWith('http') ? testimoni.gambar : `${API_URL}${testimoni.gambar}`} alt="Foto Ulasan" fill unoptimized className="object-cover" />
+                  </div>
+                )}
+                {testimoni.balasan ? (
+                  <div className="mt-4 bg-white rounded-lg p-3 border-l-4 border-[#8D6E63]">
+                    <p className="text-xs font-bold text-[#8D6E63] mb-1">Balasan Anda:</p>
+                    <p className="text-sm text-[#3E2723]">{testimoni.balasan}</p>
+                  </div>
+                ) : (
+                  <div className="mt-4 border-t border-[#D7CCC8]/40 pt-4">
+                    {replyingId === testimoni.id ? (
+                      <div className="flex flex-col gap-2">
+                        <textarea
+                          value={replyText}
+                          onChange={(e) => setReplyText(e.target.value)}
+                          placeholder="Tulis balasan Anda..."
+                          className="w-full px-3 py-2 rounded-lg border border-[#D7CCC8] text-sm focus:outline-none focus:ring-1 focus:ring-[#5D4037]"
+                          rows={2}
+                        />
+                        <div className="flex gap-2 justify-end">
+                          <button
+                            onClick={() => {
+                              setReplyingId(null);
+                              setReplyText('');
+                            }}
+                            className="text-xs px-3 py-1.5 rounded-full border border-[#D7CCC8] hover:bg-[#F5F0EB]"
+                          >
+                            Batal
+                          </button>
+                          <button
+                            onClick={() => handleReply(testimoni.id)}
+                            className="text-xs px-3 py-1.5 rounded-full bg-[#5D4037] text-white hover:bg-[#3E2723]"
+                          >
+                            Kirim
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setReplyingId(testimoni.id);
+                          setReplyText('');
+                        }}
+                        className="text-xs font-semibold text-[#8D6E63] hover:text-[#5D4037] transition"
+                      >
+                        Tulis Balasan
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Order Info */}

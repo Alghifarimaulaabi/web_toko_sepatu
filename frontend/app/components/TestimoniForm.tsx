@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from 'react';
-import { Star, X, Loader2 } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { Star, X, Loader2, Image as ImageIcon } from 'lucide-react';
 import RatingStars from './RatingStars';
 import { createTestimoni } from '../services/testimoniService';
 import { toast } from 'sonner';
@@ -25,8 +25,31 @@ export default function TestimoniForm({
 }: TestimoniFormProps) {
   const [rating, setRating] = useState(0);
   const [komentar, setKomentar] = useState('');
+  const [gambar, setGambar] = useState<File | null>(null);
+  const [gambarPreview, setGambarPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [hoveredRating, setHoveredRating] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Ukuran gambar maksimal 5MB');
+        return;
+      }
+      setGambar(file);
+      setGambarPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const removeImage = () => {
+    setGambar(null);
+    setGambarPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,12 +66,16 @@ export default function TestimoniForm({
 
     try {
       setSubmitting(true);
-      await createTestimoni({
-        pesanan_id: pesananId,
-        produk_id: produkId,
-        rating,
-        komentar: komentar.trim()
-      });
+      const formData = new FormData();
+      formData.append('pesanan_id', pesananId.toString());
+      formData.append('produk_id', produkId.toString());
+      formData.append('rating', rating.toString());
+      formData.append('komentar', komentar.trim());
+      if (gambar) {
+        formData.append('gambar', gambar);
+      }
+      
+      await createTestimoni(formData);
       
       toast.success('Ulasan berhasil ditambahkan! Terima kasih atas feedback Anda.');
       onSuccess();
@@ -118,6 +145,41 @@ export default function TestimoniForm({
             rows={4}
             className="w-full px-4 py-3 rounded-xl border border-[#D7CCC8] bg-[#F9F7F5] focus:outline-none focus:ring-2 focus:ring-[#5D4037]/40 text-[#3E2723] placeholder:text-[#8D6E63]/60 resize-none"
             required
+          />
+        </div>
+
+        {/* Upload Gambar */}
+        <div>
+          <label className="text-sm font-medium text-[#5D4037] block mb-2">
+            Foto (Opsional)
+          </label>
+          {gambarPreview ? (
+            <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-[#D7CCC8]">
+              <img src={gambarPreview} alt="Preview" className="w-full h-full object-cover" />
+              <button
+                type="button"
+                onClick={removeImage}
+                className="absolute top-1 right-1 bg-white rounded-full p-1 shadow hover:bg-red-50 text-red-500 transition"
+              >
+                <X size={14} />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2 px-4 py-3 rounded-xl border border-dashed border-[#D7CCC8] bg-[#F9F7F5] text-[#8D6E63] hover:text-[#5D4037] hover:bg-[#F5F0EB] transition w-full justify-center"
+            >
+              <ImageIcon size={20} />
+              <span className="text-sm font-medium">Pilih Foto</span>
+            </button>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            className="hidden"
           />
         </div>
 
