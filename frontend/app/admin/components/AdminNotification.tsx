@@ -28,7 +28,7 @@ export default function AdminNotification() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const res = await fetch("http://localhost:5000/api/notifikasi", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/notifikasi`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -65,7 +65,7 @@ export default function AdminNotification() {
   const markAsRead = async (id: number, reference_id: number | null) => {
     try {
       const token = localStorage.getItem("token");
-      await fetch(`http://localhost:5000/api/notifikasi/${id}/read`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/notifikasi/${id}/read`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -92,7 +92,7 @@ export default function AdminNotification() {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
-      await fetch(`http://localhost:5000/api/notifikasi/read-all`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/notifikasi/read-all`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
