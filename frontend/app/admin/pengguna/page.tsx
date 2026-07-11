@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from "@/lib/api";
 
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
@@ -27,7 +28,7 @@ const STATUS_MAP = {
   CANCELLED: { label: 'Dibatalkan', icon: XCircle, color: 'text-red-600', bg: 'bg-red-100' }
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 
 export default function AdminPengguna() {
   const [users, setUsers] = useState<UserProfile[]>([]);

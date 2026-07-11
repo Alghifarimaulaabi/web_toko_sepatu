@@ -1,3 +1,4 @@
+import { API_URL } from "@/lib/api";
 import { Product } from '../data/products';
 
 export interface OrderItem {
@@ -40,7 +41,7 @@ export interface OrdersResponse {
   };
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 
 export const getOrders = async (page: number = 1, limit: number = 10, status?: string): Promise<OrdersResponse> => {
   const token = localStorage.getItem('token');

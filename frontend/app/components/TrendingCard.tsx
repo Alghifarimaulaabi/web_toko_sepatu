@@ -1,3 +1,4 @@
+import { API_URL } from "@/lib/api";
 'use client'
 
 import { useState, useEffect } from "react";
@@ -11,7 +12,7 @@ export default function TrendingCard() {
   const [trendingProducts, setTrendingProducts] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch(`\${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/products`, { cache: 'no-store' })
+    fetch(`\${API_URL}/api/products`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

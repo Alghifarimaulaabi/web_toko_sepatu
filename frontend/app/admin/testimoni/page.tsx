@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/lib/api";
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -13,7 +14,7 @@ import {
 } from 'lucide-react';
 import { getAdminTestimoni, AdminTestimoniProduct } from '../../services/testimoniService';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 
 export default function AdminTestimoni() {
   const [products, setProducts] = useState<AdminTestimoniProduct[]>([]);

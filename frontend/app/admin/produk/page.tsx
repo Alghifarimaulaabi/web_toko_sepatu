@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from "@/lib/api";
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -32,7 +33,7 @@ export default function AdminProduk() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch(`\${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/products`);
+      const res = await fetch(`\${API_URL}/api/products`);
       const data = await res.json();
       if (Array.isArray(data)) {
         setProducts(data);
@@ -65,7 +66,7 @@ export default function AdminProduk() {
     const token = localStorage.getItem('token');
 
     try {
-      const res = await fetch(`\${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/products/${id}`, {
+      const res = await fetch(`\${API_URL}/api/products/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

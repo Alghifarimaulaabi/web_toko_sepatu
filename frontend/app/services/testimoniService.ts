@@ -1,4 +1,5 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+import { API_URL } from "@/lib/api";
+
 
 export interface Testimoni {
   id: number;

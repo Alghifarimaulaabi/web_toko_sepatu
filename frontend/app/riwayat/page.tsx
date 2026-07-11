@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/lib/api";
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -25,7 +26,7 @@ import { formatRupiah } from '../context/CartContext';
 import TestimoniForm from '../components/TestimoniForm';
 import { checkUserReview } from '../services/testimoniService';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 
 const STATUS_MAP = {
   PENDING: { label: 'Menunggu Pembayaran', icon: Clock, color: 'text-yellow-600', bg: 'bg-yellow-100' },

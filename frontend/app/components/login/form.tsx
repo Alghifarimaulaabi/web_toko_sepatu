@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/lib/api";
 
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -64,7 +65,7 @@ export default function Form() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const res = await fetch(`\${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/login`, {
+      const res = await fetch(`\${API_URL}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

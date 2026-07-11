@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from "@/lib/api";
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
@@ -44,7 +45,7 @@ export default function EditProduk() {
 
   useEffect(() => {
     // Fetch product data
-    fetch(`\${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/products/${id}`).then(res => res.json())
+    fetch(`\${API_URL}/api/products/${id}`).then(res => res.json())
     .then((productData) => {
       
       if (productData) {
@@ -104,7 +105,7 @@ export default function EditProduk() {
     }
 
     try {
-      const res = await fetch(`\${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/products/${id}`, {
+      const res = await fetch(`\${API_URL}/api/products/${id}`, {
         method: 'PUT',
         body: data,
       });

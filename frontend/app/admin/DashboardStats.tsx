@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "@/lib/api";
 
 import { useEffect, useState } from "react";
 
@@ -31,7 +32,7 @@ export default function DashboardStats() {
           return;
         }
 
-        const response = await fetch(`\${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/orders/admin/summary`, {
+        const response = await fetch(`\${API_URL}/api/orders/admin/summary`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

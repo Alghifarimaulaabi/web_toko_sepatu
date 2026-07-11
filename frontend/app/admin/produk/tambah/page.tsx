@@ -1,4 +1,5 @@
 'use client';
+import { API_URL } from "@/lib/api";
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -92,7 +93,7 @@ export default function TambahProduk() {
     data.append('foto', foto);
 
     try {
-      const res = await fetch(`\${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/products`, {
+      const res = await fetch(`\${API_URL}/api/products`, {
         method: 'POST',
         body: data, // No Content-Type header so browser sets it with boundary
       });
