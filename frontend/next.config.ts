@@ -6,10 +6,11 @@ const ContentSecurityPolicy = `
     https://app.sandbox.midtrans.com
     https://app.midtrans.com;
   style-src 'self' 'unsafe-inline';
-  img-src 'self' data: blob: http://localhost:5000 https://res.cloudinary.com;
+  img-src 'self' data: blob: http://localhost:5000 https://tokosepatubackend-production.up.railway.app https://res.cloudinary.com;
   font-src 'self' data:;
   connect-src 'self'
     http://localhost:5000
+    https://tokosepatubackend-production.up.railway.app
     https://app.sandbox.midtrans.com
     https://app.midtrans.com;
   frame-src
@@ -24,6 +25,11 @@ const nextConfig: NextConfig = {
         protocol: "http",
         hostname: "localhost",
         port: "5000",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: "tokosepatubackend-production.up.railway.app",
         pathname: "/uploads/**",
       },
       {
