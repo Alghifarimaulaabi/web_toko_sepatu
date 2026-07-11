@@ -31,7 +31,7 @@ export default function SalesChart() {
           return;
         }
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/orders/admin/stats`, {
+        const response = await fetch("http://localhost:5000/api/orders/admin/stats", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

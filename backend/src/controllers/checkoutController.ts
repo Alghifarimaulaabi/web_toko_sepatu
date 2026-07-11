@@ -1,5 +1,6 @@
 import type { Response } from 'express';
 import { PrismaClient } from '../../generated/prisma/client.js';
+import crypto from 'crypto';
 // @ts-ignore - midtrans-client doesn't have type definitions
 import midtransClient from 'midtrans-client';
 import type { AuthRequest } from '../middleware/auth.js';
@@ -272,6 +273,18 @@ res.status(500).json({
 export const midtransNotification = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const notificationJson = req.body;
+    
+    // Verifikasi signature dari Midtrans
+    const { signature_key, order_id, status_code, gross_amount } = notificationJson;
+    const serverKey = process.env.MIDTRANS_SERVER_KEY || '';
+    
+    const hash = crypto.createHash('sha512').update(order_id + status_code + gross_amount + serverKey).digest('hex');
+    
+    if (hash !== signature_key) {
+      console.error(`Invalid Midtrans signature key for order: ${order_id}`);
+      res.status(403).json({ message: 'Invalid signature' });
+      return;
+    }
     
     const transactionStatus = notificationJson.transaction_status;
     const fraudStatus = notificationJson.fraud_status;

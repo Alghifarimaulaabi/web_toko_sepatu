@@ -129,7 +129,7 @@ export const createProduct = async (req: Request, res: Response): Promise<void> 
               warna: v.warna,
               ukuran: v.ukuran,
               stok: parseInt(v.stok),
-              gambar: varianFile ? `/uploads/${varianFile.filename}` : null
+              gambar: varianFile ? varianFile.path : null
             };
           })
         }
@@ -206,7 +206,7 @@ export const updateProduct = async (req: Request, res: Response): Promise<void> 
           let varianGambar = v.gambar || null;
           const varianFile = files.find(f => f.fieldname === `varian_foto_${index}`);
           if (varianFile) {
-            varianGambar = `/uploads/${varianFile.filename}`;
+            varianGambar = varianFile.path;
           }
           return {
             produk_id: id,

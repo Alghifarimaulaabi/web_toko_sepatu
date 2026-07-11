@@ -44,7 +44,7 @@ export default function EditProduk() {
 
   useEffect(() => {
     // Fetch product data
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products/${id}`).then(res => res.json())
+    fetch(`http://localhost:5000/api/products/${id}`).then(res => res.json())
     .then((productData) => {
       
       if (productData) {
@@ -104,7 +104,7 @@ export default function EditProduk() {
     }
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/products/${id}`, {
+      const res = await fetch(`http://localhost:5000/api/products/${id}`, {
         method: 'PUT',
         body: data,
       });

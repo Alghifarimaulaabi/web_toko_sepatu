@@ -103,7 +103,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       total
     });
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/checkout`, {
+    const res = await fetch("http://localhost:5000/api/checkout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -139,7 +139,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           console.log('Payment success:', result);
           // Update status pesanan ke PROCESSING
           try {
-            await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/orders/update-status`, {
+            await fetch("http://localhost:5000/api/orders/update-status", {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
