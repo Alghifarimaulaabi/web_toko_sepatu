@@ -1,5 +1,5 @@
 import type { Response } from 'express';
-import { PrismaClient } from '../../generated/prisma/client.js';
+import { PrismaClient } from "@prisma/client";
 import type { AuthRequest } from '../middleware/auth.js';
 // @ts-ignore
 import midtransClient from 'midtrans-client';

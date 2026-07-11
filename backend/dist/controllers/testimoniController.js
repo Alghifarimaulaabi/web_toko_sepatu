@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../generated/prisma/client.js';
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 // User: Create review for a product from a delivered order
 export const createTestimoni = async (req, res) => {

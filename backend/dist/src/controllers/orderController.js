@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../generated/prisma/client.js';
+import { PrismaClient } from "@prisma/client";
 // @ts-ignore
 import midtransClient from 'midtrans-client';
 const prisma = new PrismaClient();

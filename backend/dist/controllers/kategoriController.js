@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../generated/prisma/client.js';
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 // GET all kategori
 export const getAllKategori = async (req, res) => {

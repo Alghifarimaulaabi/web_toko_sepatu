@@ -1,4 +1,4 @@
-import { PrismaClient } from '../../generated/prisma/client.js';
+import { PrismaClient } from "@prisma/client";
 import fs from 'fs';
 import path from 'path';
 const prisma = new PrismaClient();
@@ -112,7 +112,7 @@ export const createProduct = async (req, res) => {
                             warna: v.warna,
                             ukuran: v.ukuran,
                             stok: parseInt(v.stok),
-                            gambar: varianFile ? `/uploads/${varianFile.filename}` : null
+                            gambar: varianFile ? varianFile.path : null
                         };
                     })
                 }
@@ -181,7 +181,7 @@ export const updateProduct = async (req, res) => {
                     let varianGambar = v.gambar || null;
                     const varianFile = files.find(f => f.fieldname === `varian_foto_${index}`);
                     if (varianFile) {
-                        varianGambar = `/uploads/${varianFile.filename}`;
+                        varianGambar = varianFile.path;
                     }
                     return {
                         produk_id: id,
@@ -233,12 +233,10 @@ export const deleteProduct = async (req, res) => {
             res.status(404).json({ message: 'Produk tidak ditemukan' });
             return;
         }
-        // Delete image file
-        const imagePath = path.join(process.cwd(), 'public', product.gambar);
-        if (fs.existsSync(imagePath)) {
-            fs.unlinkSync(imagePath);
-        }
-        // Since in schema ProdukVarian has onDelete: Cascade, deleting Produk will delete its variants
+        // Delete related records first to avoid foreign key constraints
+        await prisma.testimoni.deleteMany({ where: { produk_id: id } });
+        await prisma.detailPesanan.deleteMany({ where: { produk_id: id } });
+        // Delete product (ProdukVarian will cascade automatically)
         await prisma.produk.delete({
             where: { id }
         });

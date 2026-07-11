@@ -1,5 +1,5 @@
 import type { Response } from 'express';
-import { PrismaClient } from '../../generated/prisma/client.js';
+import { PrismaClient } from "@prisma/client";
 import crypto from 'crypto';
 // @ts-ignore - midtrans-client doesn't have type definitions
 import midtransClient from 'midtrans-client';
