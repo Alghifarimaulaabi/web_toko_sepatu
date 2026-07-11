@@ -32,7 +32,7 @@ export default function DashboardStats() {
           return;
         }
 
-        const response = await fetch(`\${API_URL}/api/orders/admin/summary`, {
+        const response = await fetch(`${API_URL}/api/orders/admin/summary`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

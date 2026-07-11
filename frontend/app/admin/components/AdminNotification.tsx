@@ -29,7 +29,7 @@ export default function AdminNotification() {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const res = await fetch(`\${API_URL}/api/notifikasi`, {
+      const res = await fetch(`${API_URL}/api/notifikasi`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -66,7 +66,7 @@ export default function AdminNotification() {
   const markAsRead = async (id: number, reference_id: number | null) => {
     try {
       const token = localStorage.getItem("token");
-      await fetch(`\${API_URL}/api/notifikasi/${id}/read`, {
+      await fetch(`${API_URL}/api/notifikasi/${id}/read`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -93,7 +93,7 @@ export default function AdminNotification() {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
-      await fetch(`\${API_URL}/api/notifikasi/read-all`, {
+      await fetch(`${API_URL}/api/notifikasi/read-all`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

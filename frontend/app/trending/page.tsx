@@ -16,7 +16,7 @@ export default function TrendingPage() {
   const [trendingProducts, setTrendingProducts] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch(`\${API_URL}/api/products`, { cache: 'no-store' })
+    fetch(`${API_URL}/api/products`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

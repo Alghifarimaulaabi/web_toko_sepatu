@@ -1,5 +1,6 @@
-import { API_URL } from "@/lib/api";
 'use client'
+import { API_URL } from "@/lib/api";
+
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -12,7 +13,7 @@ export default function TrendingCard() {
   const [trendingProducts, setTrendingProducts] = useState<any[]>([]);
 
   useEffect(() => {
-    fetch(`\${API_URL}/api/products`, { cache: 'no-store' })
+    fetch(`${API_URL}/api/products`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

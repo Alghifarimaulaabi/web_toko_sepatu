@@ -45,7 +45,7 @@ export default function EditProduk() {
 
   useEffect(() => {
     // Fetch product data
-    fetch(`\${API_URL}/api/products/${id}`).then(res => res.json())
+    fetch(`${API_URL}/api/products/${id}`).then(res => res.json())
     .then((productData) => {
       
       if (productData) {
@@ -105,7 +105,7 @@ export default function EditProduk() {
     }
 
     try {
-      const res = await fetch(`\${API_URL}/api/products/${id}`, {
+      const res = await fetch(`${API_URL}/api/products/${id}`, {
         method: 'PUT',
         body: data,
       });

@@ -33,7 +33,7 @@ export default function AdminProduk() {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch(`\${API_URL}/api/products`);
+      const res = await fetch(`${API_URL}/api/products`);
       const data = await res.json();
       if (Array.isArray(data)) {
         setProducts(data);
@@ -66,7 +66,7 @@ export default function AdminProduk() {
     const token = localStorage.getItem('token');
 
     try {
-      const res = await fetch(`\${API_URL}/api/products/${id}`, {
+      const res = await fetch(`${API_URL}/api/products/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

@@ -32,7 +32,7 @@ export default function SalesChart() {
           return;
         }
 
-        const response = await fetch(`\${API_URL}/api/orders/admin/stats`, {
+        const response = await fetch(`${API_URL}/api/orders/admin/stats`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

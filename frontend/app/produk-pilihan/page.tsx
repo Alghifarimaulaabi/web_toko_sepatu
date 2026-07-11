@@ -17,7 +17,7 @@ export default function SelectedProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState("SEMUA");
 
   useEffect(() => {
-    fetch(`\${API_URL}/api/products`, { cache: 'no-store' })
+    fetch(`${API_URL}/api/products`, { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

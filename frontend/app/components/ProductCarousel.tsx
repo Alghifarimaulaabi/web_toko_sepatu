@@ -31,7 +31,7 @@ export default function ProductCarousel() {
   const [carouselProducts, setCarouselProducts] = useState<CarouselProduct[]>([]);
 
   useEffect(() => {
-    fetch(`\${API_URL}/api/products`, { cache: "no-store" })
+    fetch(`${API_URL}/api/products`, { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {

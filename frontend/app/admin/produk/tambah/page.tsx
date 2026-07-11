@@ -93,7 +93,7 @@ export default function TambahProduk() {
     data.append('foto', foto);
 
     try {
-      const res = await fetch(`\${API_URL}/api/products`, {
+      const res = await fetch(`${API_URL}/api/products`, {
         method: 'POST',
         body: data, // No Content-Type header so browser sets it with boundary
       });

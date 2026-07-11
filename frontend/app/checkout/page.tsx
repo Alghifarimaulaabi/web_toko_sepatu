@@ -104,7 +104,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       total
     });
 
-    const res = await fetch(`\${API_URL}/api/checkout`, {
+    const res = await fetch(`${API_URL}/api/checkout`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -140,7 +140,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           console.log('Payment success:', result);
           // Update status pesanan ke PROCESSING
           try {
-            await fetch(`\${API_URL}/api/orders/update-status`, {
+            await fetch(`${API_URL}/api/orders/update-status`, {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
