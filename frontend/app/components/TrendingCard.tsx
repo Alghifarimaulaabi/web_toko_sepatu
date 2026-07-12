@@ -80,11 +80,11 @@ export default function TrendingCard() {
         </div>
 
         {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
           {trendingProducts.map((product) => (
             <div
               key={product.id}
-              className="relative h-[400px] md:h-[450px] rounded-3xl overflow-hidden group shadow-lg shadow-[#4E342E]/10"
+              className="relative h-[300px] sm:h-[400px] md:h-[450px] rounded-2xl sm:rounded-3xl overflow-hidden group shadow-lg shadow-[#4E342E]/10"
             >
               {/* Image Container */}
               <Image

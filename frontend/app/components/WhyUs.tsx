@@ -9,7 +9,7 @@ export default function WhyUs() {
           
           {/* Left Content */}
           <div className="w-full lg:w-1/2">
-            <h2 className="text-4xl lg:text-5xl font-bold text-[#3E2723] mb-6 leading-tight">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#3E2723] mb-6 leading-tight">
               Kenapa Memilih <br/>
               <span className="text-[#8D6E63]">Layanan Kami?</span>
             </h2>
@@ -52,7 +52,7 @@ export default function WhyUs() {
 
           {/* Right Image */}
           <div className="w-full lg:w-1/2">
-            <div className="relative h-[500px] w-full rounded-[2rem] overflow-hidden shadow-2xl shadow-[#4E342E]/20 group">
+            <div className="relative h-[300px] sm:h-[400px] lg:h-[500px] w-full rounded-2xl sm:rounded-[2rem] overflow-hidden shadow-2xl shadow-[#4E342E]/20 group">
               <Image 
                 src="/images/toko.jpg" 
                 alt="Kenapa Memilih Kami" 

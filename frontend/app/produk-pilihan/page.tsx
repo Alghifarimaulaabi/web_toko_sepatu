@@ -106,13 +106,13 @@ export default function SelectedProductsPage() {
 
           {/* Cards Grid */}
           {currentProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
               {currentProducts.map((product) => (
                 <div
                   key={product.id}
                   className="bg-white rounded-3xl p-5 shadow-sm hover:shadow-xl transition duration-300 border border-[#D7CCC8]/50 flex flex-col h-full"
                 >
-                  <div className="relative h-56 rounded-2xl overflow-hidden mb-5 group shrink-0">
+                  <div className="relative h-40 sm:h-56 rounded-2xl overflow-hidden mb-3 sm:mb-5 group shrink-0">
                     <Image
                       src={product.image}
                       alt={product.title}
@@ -130,8 +130,8 @@ export default function SelectedProductsPage() {
                   </div>
 
                   <div className="flex flex-col flex-grow">
-                    <h3 className="font-bold text-xl text-[#3E2723] mb-1 line-clamp-1">{product.title}</h3>
-                    <p className="text-[#8D6E63] font-semibold text-lg mb-5 flex-grow">{product.price}</p>
+                    <h3 className="font-bold text-sm sm:text-xl text-[#3E2723] mb-1 line-clamp-1">{product.title}</h3>
+                    <p className="text-[#8D6E63] font-semibold text-sm sm:text-lg mb-3 sm:mb-5 flex-grow">{product.price}</p>
                     
                     <Link href={`/produk/${product.id}`} className="w-full flex items-center justify-center gap-2 bg-[#5D4037] hover:bg-[#3E2723] text-white py-3.5 rounded-xl transition duration-300 font-semibold shadow-md shadow-[#5D4037]/20 mt-auto">
                       <ShoppingBag size={20} />

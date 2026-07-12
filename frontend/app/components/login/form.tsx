@@ -140,7 +140,7 @@ export default function Form() {
 
       {/* Card */}
       <motion.div
-        className="w-96 rounded-3xl bg-white/95 backdrop-blur-md p-8 shadow-2xl shadow-[#3E2723]/15 border border-white/50 relative z-10"
+        className="w-full max-w-sm mx-4 sm:mx-auto rounded-3xl bg-white/95 backdrop-blur-md p-6 sm:p-8 shadow-2xl shadow-[#3E2723]/15 border border-white/50 relative z-10"
         initial={{ scale: 0.85, opacity: 0, y: 30 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         transition={{ type: "spring", damping: 25, stiffness: 200, delay: 0.1 }}
@@ -157,7 +157,7 @@ export default function Form() {
 
           {/* Tabs */}
           <motion.div className="mb-8 flex justify-center" variants={itemVariants}>
-            <div className="relative flex h-12 w-72 items-center rounded-full bg-[#EFECE7] p-1">
+            <div className="relative flex h-12 w-full max-w-[288px] items-center rounded-full bg-[#EFECE7] p-1">
               {/* Active indicator */}
               <motion.div
                 className="absolute left-1 top-1 h-10 w-[calc(50%-4px)] rounded-full bg-gradient-to-r from-[#5D4037] to-[#8D6E63] shadow-md"

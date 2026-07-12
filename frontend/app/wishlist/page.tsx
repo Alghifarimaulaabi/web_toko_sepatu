@@ -15,7 +15,7 @@ export default function WishlistPage() {
       <Navbar />
 
       <section className="py-16 md:py-24 flex-grow">
-        <div className="container mx-auto px-6 max-w-6xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-6xl">
           
           <Link href="/" className="inline-flex items-center gap-2 text-[#8D6E63] hover:text-[#5D4037] mb-8 font-semibold transition group">
             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
@@ -38,10 +38,10 @@ export default function WishlistPage() {
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
                 {wishlist.map((product) => (
-                  <div key={product.id} className="bg-white rounded-3xl p-5 shadow-sm hover:shadow-xl transition duration-300 border border-[#D7CCC8]/50 flex flex-col">
-                    <div className="relative h-56 rounded-2xl overflow-hidden mb-5 group">
+                  <div key={product.id} className="bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm hover:shadow-xl transition duration-300 border border-[#D7CCC8]/50 flex flex-col">
+                    <div className="relative h-40 sm:h-56 rounded-xl sm:rounded-2xl overflow-hidden mb-3 sm:mb-5 group">
                       <Image
                         src={product.image}
                         alt={product.title}
@@ -63,10 +63,10 @@ export default function WishlistPage() {
                     </div>
 
                     <div className="flex flex-col flex-grow">
-                      <h3 className="font-bold text-lg text-[#3E2723] mb-1 line-clamp-2">{product.title}</h3>
-                      <p className="text-[#8D6E63] font-semibold text-md mb-5">{product.price}</p>
+                      <h3 className="font-bold text-sm sm:text-lg text-[#3E2723] mb-1 line-clamp-2">{product.title}</h3>
+                      <p className="text-[#8D6E63] font-semibold text-xs sm:text-md mb-3 sm:mb-5">{product.price}</p>
                       
-                      <Link href={`/produk/${product.id}`} className="mt-auto w-full flex items-center justify-center gap-2 bg-[#5D4037] hover:bg-[#3E2723] text-white py-3 rounded-xl transition duration-300 font-semibold shadow-md shadow-[#5D4037]/20">
+                      <Link href={`/produk/${product.id}`} className="mt-auto w-full flex items-center justify-center gap-2 bg-[#5D4037] hover:bg-[#3E2723] text-white py-2.5 sm:py-3 rounded-xl transition duration-300 font-semibold text-sm sm:text-base shadow-md shadow-[#5D4037]/20">
                         <ShoppingBag size={18} />
                         Beli Sekarang
                       </Link>

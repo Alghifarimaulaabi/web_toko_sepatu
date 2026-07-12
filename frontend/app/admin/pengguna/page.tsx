@@ -168,7 +168,8 @@ export default function AdminPengguna() {
           <p className="text-center py-10 text-gray-500">Tidak ada pengguna yang ditemukan.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
                 <tr className="border-b border-[#D7CCC8] text-[#8D6E63] text-sm">
                   <th className="pb-3 font-semibold">Nama</th>
@@ -203,6 +204,7 @@ export default function AdminPengguna() {
                 ))}
               </tbody>
             </table>
+            </div>
 
             {totalPages > 1 && (
               <div className="flex justify-center items-center gap-2 pt-6">
@@ -286,7 +288,8 @@ export default function AdminPengguna() {
                     <p className="text-center py-10 text-gray-500">Tidak ada pesanan.</p>
                   ) : (
                     <div className="overflow-x-auto border border-[#D7CCC8] rounded-lg">
-                      <table className="w-full text-left border-collapse">
+                      <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[800px]">
                         <thead>
                           <tr className="border-b border-[#D7CCC8] bg-[#F9F7F5] text-[#8D6E63] text-sm">
                             <th className="p-3 font-semibold">Kode</th>
@@ -322,6 +325,7 @@ export default function AdminPengguna() {
                           })}
                         </tbody>
                       </table>
+            </div>
                     </div>
                   )}
 

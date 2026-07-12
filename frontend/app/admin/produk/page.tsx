@@ -115,7 +115,8 @@ export default function AdminProduk() {
           <p>Loading data...</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
                 <tr className="border-b border-[#D7CCC8]">
                   <th className="py-3 px-4 font-semibold text-[#5D4037]">Foto</th>
@@ -166,6 +167,7 @@ export default function AdminProduk() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>

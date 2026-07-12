@@ -67,9 +67,9 @@ export default function ProductCarousel() {
           {carouselProducts.map((product) => (
             <div
               key={product.id}
-              className="min-w-[280px] md:min-w-[320px] snap-start bg-white rounded-3xl p-5 shadow-sm hover:shadow-xl transition duration-300 border border-[#D7CCC8]/50"
+              className="min-w-[160px] w-[calc(50%-8px)] sm:w-auto sm:min-w-[280px] md:min-w-[320px] snap-start bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm hover:shadow-xl transition duration-300 border border-[#D7CCC8]/50 flex flex-col"
             >
-              <div className="relative h-64 rounded-2xl overflow-hidden mb-5 group">
+              <div className="relative h-40 sm:h-64 rounded-xl sm:rounded-2xl overflow-hidden mb-3 sm:mb-5 group shrink-0">
                 <Image
                   src={product.image}
                   alt={product.title}
@@ -94,9 +94,9 @@ export default function ProductCarousel() {
                 </button>
               </div>
 
-              <div>
-                <h3 className="font-bold text-xl text-[#3E2723] mb-1 line-clamp-1">{product.title}</h3>
-                <p className="text-[#8D6E63] font-semibold text-lg mb-5">{product.price}</p>
+              <div className="flex flex-col flex-grow">
+                <h3 className="font-bold text-sm sm:text-xl text-[#3E2723] mb-1 line-clamp-1">{product.title}</h3>
+                <p className="text-[#8D6E63] font-semibold text-sm sm:text-lg mb-3 sm:mb-5 flex-grow">{product.price}</p>
 
                 <Link href={`/produk/${product.id}`} className="w-full flex items-center justify-center gap-2 bg-[#5D4037] hover:bg-[#3E2723] text-white py-3.5 rounded-xl transition duration-300 font-semibold shadow-md shadow-[#5D4037]/20">
                   <ShoppingBag size={20} />

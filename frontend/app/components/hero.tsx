@@ -186,14 +186,14 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="flex flex-wrap items-center justify-center gap-4 pointer-events-auto"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto w-full sm:w-auto"
         >
 
-          <Link href="/produk-pilihan">
+          <Link href="/produk-pilihan" className="w-full sm:w-auto">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 rounded-full bg-brand hover:bg-brand-dark px-6 py-3 md:px-8 md:py-4 font-bold text-white transition-all duration-300 shadow-lg shadow-brand/40 group font-display tracking-wide"
+            className="flex items-center justify-center w-full sm:w-auto gap-2 rounded-full bg-brand hover:bg-brand-dark px-6 py-3 md:px-8 md:py-4 font-bold text-white transition-all duration-300 shadow-lg shadow-brand/40 group font-display tracking-wide"
           >
             Belanja Sekarang
             <motion.div
@@ -205,11 +205,11 @@ export default function Hero() {
           </motion.button>
           </Link>
 
-        <Link href="produk-pilihan">
+        <Link href="/produk-pilihan" className="w-full sm:w-auto">
           <motion.button
             whileHover={{ scale: 1.05, backgroundColor: "rgba(255,255,255,0.15)" }}
             whileTap={{ scale: 0.95 }}
-            className="rounded-full border-2 border-white/20 bg-white/5 backdrop-blur-sm px-6 py-3 md:px-8 md:py-4 font-bold text-white transition-all duration-300 font-display tracking-wide"
+            className="w-full sm:w-auto rounded-full border-2 border-white/20 bg-white/5 backdrop-blur-sm px-6 py-3 md:px-8 md:py-4 font-bold text-white transition-all duration-300 font-display tracking-wide"
           >
             Lihat Katalog
           </motion.button>
