@@ -188,6 +188,8 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.8 }}
           className="flex flex-wrap items-center justify-center gap-4 pointer-events-auto"
         >
+
+          <Link href="/produk-pilihan">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -201,6 +203,7 @@ export default function Hero() {
               <ArrowRight size={20} />
             </motion.div>
           </motion.button>
+          </Link>
 
         <Link href="produk-pilihan">
           <motion.button

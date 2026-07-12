@@ -37,7 +37,7 @@ export default function TrendingCard() {
   }, []);
 
   return (
-    <section className="py-16 bg-[#EFECE7]" id="trending">
+    <section className="py-16 bg-[#EFECE7]" id="Trending">
       <div className="container mx-auto px-6">
         
         {/* Header */}
