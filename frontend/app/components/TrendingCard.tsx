@@ -7,9 +7,14 @@ import Image from "next/image";
 import { Heart, ShoppingBag, Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useWishlist } from "../context/WishlistContext";
+import { useCart } from "../context/CartContext";
+import { toast } from "sonner";
+import LoginModal from "./LoginModal";
 
 export default function TrendingCard() {
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { addToCart } = useCart();
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [trendingProducts, setTrendingProducts] = useState<any[]>([]);
 
   useEffect(() => {
@@ -35,6 +40,26 @@ export default function TrendingCard() {
       })
       .catch(err => console.error("Error fetching trending products:", err));
   }, []);
+
+  const handleAddToCart = (product: any) => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (!token) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    const cartProduct = {
+      id: product.id,
+      image: product.image,
+      title: product.title,
+      price: product.price,
+      rating: product.rating,
+      description: product.description,
+    };
+
+    addToCart(cartProduct, 1);
+    toast.success(`${product.title} ditambahkan ke keranjang!`);
+  };
 
   return (
     <section className="py-16 bg-[#EFECE7]" id="Trending">
@@ -107,7 +132,13 @@ export default function TrendingCard() {
                   <Link href={`/produk/${product.id}`} className="flex-1 flex justify-center items-center rounded-xl bg-[#8D6E63] py-3.5 px-4 font-bold text-white hover:bg-[#5D4037] transition shadow-lg">
                     Beli Sekarang
                   </Link>
-                  <button className="rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm p-3.5 text-white hover:bg-white/20 transition">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleAddToCart(product);
+                    }}
+                    className="rounded-xl border border-white/30 bg-white/10 backdrop-blur-sm p-3.5 text-white hover:bg-white/20 transition"
+                  >
                     <ShoppingBag size={20} />
                   </button>
                 </div>
@@ -116,6 +147,8 @@ export default function TrendingCard() {
           ))}
         </div>
       </div>
+
+      <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} />
     </section>
   );
 }

@@ -18,6 +18,7 @@ import Navbar from "../components/navbar";
 import Footer from "../components/Footer";
 import { useCart, cleanPrice, formatRupiah, type CartItem } from "../context/CartContext"; 
 import { getProfile } from "../services/profileService";
+import { toast } from "sonner";
 
 type PaymentMethod = "midtrans" | "cod";
 
@@ -90,7 +91,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
   if (!token) {
-    alert("Silakan login terlebih dahulu untuk melakukan checkout.");
+    toast.error("Silakan login terlebih dahulu untuk melakukan checkout.");
     setSubmitting(false);
     return;
   }
@@ -158,7 +159,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             removeFromCart(item.product.id, item.warna, item.ukuran);
           });
           setCheckoutItems([]);
-          alert("Pembayaran berhasil!");
+          toast.success("Pembayaran berhasil!");
           window.location.href = `/riwayat`;
         },
         onPending: function (result: any) {
@@ -167,17 +168,17 @@ const handleSubmit = async (e: React.FormEvent) => {
             removeFromCart(item.product.id, item.warna, item.ukuran);
           });
           setCheckoutItems([]);
-          alert("Pembayaran sedang diproses. Silakan selesaikan pembayaran.");
+          toast.info("Pembayaran sedang diproses. Silakan selesaikan pembayaran.");
           window.location.href = `/riwayat`;
         },
         onError: function (result: any) {
           console.error('Payment error:', result);
-          alert("Pembayaran gagal! Silakan coba lagi.");
+          toast.error("Pembayaran gagal! Silakan coba lagi.");
         },
         onClose: function () {
           console.log('Payment popup closed');
           // Jangan hapus cart items saat popup ditutup
-          alert("Anda menutup popup pembayaran. Pesanan tetap bisa dibayar nanti.");
+          toast.warning("Anda menutup popup pembayaran. Pesanan tetap bisa dibayar nanti.");
         }
       });
     } else if (payment === "cod") {
@@ -186,12 +187,12 @@ const handleSubmit = async (e: React.FormEvent) => {
         removeFromCart(item.product.id, item.warna, item.ukuran);
       });
       setCheckoutItems([]);
-      alert("Pesanan COD berhasil dibuat!");
+      toast.success("Pesanan COD berhasil dibuat!");
       window.location.href = `/riwayat`;
     }
   } catch (err: any) {
     console.error('Checkout error:', err);
-    alert(err.message || "Terjadi kesalahan saat memproses pesanan. Silakan coba lagi.");
+    toast.error(err.message || "Terjadi kesalahan saat memproses pesanan. Silakan coba lagi.");
   } finally {
     setSubmitting(false);
   }

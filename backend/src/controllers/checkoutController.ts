@@ -306,10 +306,10 @@ export const midtransNotification = async (req: AuthRequest, res: Response): Pro
 
     if (transactionStatus === 'capture') {
       if (fraudStatus === 'accept') {
-        newStatus = 'PROCESSING';
+        newStatus = 'SHIPPED';
       }
     } else if (transactionStatus === 'settlement') {
-      newStatus = 'PROCESSING';
+      newStatus = 'SHIPPED';
     } else if (transactionStatus === 'cancel' || transactionStatus === 'deny' || transactionStatus === 'expire') {
       newStatus = 'CANCELLED';
     } else if (transactionStatus === 'pending') {

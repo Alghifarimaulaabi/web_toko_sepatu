@@ -7,6 +7,7 @@ import { User, MapPin, Phone, Mail, Camera, Save, Loader2, LogOut } from "lucide
 import Navbar from "../components/navbar";
 import Footer from "../components/Footer";
 import { getProfile, updateProfile, UserProfile } from "../services/profileService";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -80,10 +81,10 @@ export default function ProfilePage() {
 
       const res = await updateProfile(form);
       setProfile(res.user);
-      alert("Profil berhasil diperbarui!");
+      toast.success("Profil berhasil diperbarui!");
     } catch (error: any) {
       console.error("Error updating profile:", error);
-      alert(error.message || "Gagal memperbarui profil");
+      toast.error(error.message || "Gagal memperbarui profil");
     } finally {
       setSaving(false);
     }
