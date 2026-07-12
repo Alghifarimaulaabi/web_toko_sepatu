@@ -131,8 +131,14 @@ const Navbar = () => {
 
                         {user ? (
                             <div className="flex items-center gap-4">
-                                <Link href="/profile" className="hidden md:block group cursor-pointer">
-                                    <span className="text-sm font-medium font-display tracking-wide group-hover:text-brand-light transition-colors">Halo, {user.nama}</span>
+                                <Link href="/profile" className="hidden md:flex group cursor-pointer relative" title={user.nama}>
+                                    <motion.div
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-light to-brand flex items-center justify-center text-white font-bold font-display text-sm uppercase shadow-lg ring-2 ring-white/20 group-hover:ring-brand-light/50 transition-all"
+                                    >
+                                        {user.nama.charAt(0)}
+                                    </motion.div>
                                 </Link>
                                 <motion.button 
                                     whileHover={{ scale: 1.05 }}
