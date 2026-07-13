@@ -16,6 +16,7 @@ export default function TrendingCard() {
   const { addToCart } = useCart();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [trendingProducts, setTrendingProducts] = useState<any[]>([]);
+  const [activeCard, setActiveCard] = useState<number | null>(null);
 
   useEffect(() => {
     fetch(`${API_URL}/api/products`, { cache: 'no-store' })
