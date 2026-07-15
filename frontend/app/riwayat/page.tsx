@@ -19,7 +19,8 @@ import {
   Star,
   MessageSquare,
   Ban,
-  AlertTriangle
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import Navbar from '../components/navbar';
 import Footer from '../components/Footer';
@@ -64,6 +65,7 @@ export default function RiwayatPage() {
   } | null>(null);
   const [reviewedItems, setReviewedItems] = useState<Set<string>>(new Set());
   const [cancellingId, setCancellingId] = useState<number | null>(null);
+  const [showCancelModal, setShowCancelModal] = useState<{ id: number; kode: string } | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -111,15 +113,12 @@ export default function RiwayatPage() {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
 
-  const handleCancelOrder = async (orderId: number, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const confirmed = window.confirm('Apakah Anda yakin ingin membatalkan pesanan ini? Tindakan ini tidak dapat dibatalkan.');
-    if (!confirmed) return;
-
+  const handleCancelOrder = async (orderId: number) => {
     try {
       setCancellingId(orderId);
       await cancelOrder(orderId);
       toast.success('Pesanan berhasil dibatalkan');
+      setShowCancelModal(null);
       fetchOrders();
     } catch (error: any) {
       toast.error(error.message || 'Gagal membatalkan pesanan');
@@ -269,7 +268,10 @@ export default function RiwayatPage() {
                           {/* Cancel button for PENDING orders */}
                           {order.status === 'PENDING' && (
                             <button
-                              onClick={(e) => handleCancelOrder(order.id, e)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setShowCancelModal({ id: order.id, kode: order.kode_pesanan });
+                              }}
                               disabled={cancellingId === order.id}
                               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             >
@@ -328,7 +330,12 @@ export default function RiwayatPage() {
                                         <div className="font-medium text-[#3E2723] text-sm line-clamp-1">
                                           {item.nama_produk}
                                         </div>
-                                        <div className="text-xs text-[#8D6E63]">
+                                        {(item.warna || item.ukuran) && (
+                                          <div className="text-xs font-semibold text-[#5D4037] mt-0.5">
+                                            Varian: {item.warna || '-'} / {item.ukuran || '-'}
+                                          </div>
+                                        )}
+                                        <div className="text-xs text-[#8D6E63] mt-0.5">
                                           {item.jumlah} x {formatRupiah(item.harga)}
                                         </div>
                                       </div>
@@ -452,6 +459,56 @@ export default function RiwayatPage() {
               onCancel={() => setShowReviewForm(null)}
             />
           </div>
+        </div>
+      )}
+
+      {/* Cancel Order Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="w-full max-w-md bg-white rounded-3xl p-6 shadow-2xl overflow-hidden relative"
+          >
+            <div className="absolute top-4 right-4">
+              <button
+                onClick={() => setShowCancelModal(null)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="flex flex-col items-center text-center mt-4">
+              <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4">
+                <AlertTriangle size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-[#3E2723] mb-2">
+                Batalkan Pesanan?
+              </h3>
+              <p className="text-[#8D6E63] text-sm mb-6">
+                Apakah Anda yakin ingin membatalkan pesanan <span className="font-semibold text-[#5D4037]">{showCancelModal.kode}</span>? Tindakan ini tidak dapat dikembalikan.
+              </p>
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={() => setShowCancelModal(null)}
+                  className="flex-1 py-3 px-4 rounded-xl font-bold text-[#5D4037] bg-[#F9F7F5] border border-[#D7CCC8] hover:bg-[#EFECE7] transition"
+                >
+                  Tidak, Kembali
+                </button>
+                <button
+                  onClick={() => handleCancelOrder(showCancelModal.id)}
+                  disabled={cancellingId === showCancelModal.id}
+                  className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 transition flex justify-center items-center gap-2 disabled:opacity-50"
+                >
+                  {cancellingId === showCancelModal.id ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : null}
+                  Ya, Batalkan
+                </button>
+              </div>
+            </div>
+          </motion.div>
         </div>
       )}
     </main>

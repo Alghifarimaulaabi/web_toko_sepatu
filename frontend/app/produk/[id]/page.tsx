@@ -489,6 +489,8 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
             price: Number(product.price.replace(/[^0-9]/g, "")),
           }}
           quantity={checkoutQuantity}
+          warna={selectedColor}
+          ukuran={selectedSize}
           onIncrease={() => setCheckoutQuantity((prev) => prev + 1)}
           onDecrease={() => setCheckoutQuantity((prev) => Math.max(1, prev - 1))}
           onCheckout={() => {

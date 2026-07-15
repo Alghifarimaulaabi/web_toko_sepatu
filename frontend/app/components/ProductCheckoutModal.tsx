@@ -18,6 +18,8 @@ interface ProductCheckoutModalProps {
   onIncrease: () => void;
   onDecrease: () => void;
   onCheckout: () => void;
+  warna?: string;
+  ukuran?: string;
 }
 
 export default function ProductCheckoutModal({
@@ -28,6 +30,8 @@ export default function ProductCheckoutModal({
   onIncrease,
   onDecrease,
   onCheckout,
+  warna,
+  ukuran,
 }: ProductCheckoutModalProps) {
   const total = product.price * quantity;
 
@@ -98,6 +102,12 @@ export default function ProductCheckoutModal({
                     <p className="text-[#8D6E63] mt-2 text-sm leading-relaxed line-clamp-3">
                       {product.description}
                     </p>
+
+                    {(warna || ukuran) && (
+                      <p className="mt-3 text-sm font-bold text-[#5D4037]">
+                        Varian: {warna || '-'} / {ukuran || '-'}
+                      </p>
+                    )}
                   </div>
 
                 </div>

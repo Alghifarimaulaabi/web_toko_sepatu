@@ -8,6 +8,8 @@ export interface OrderItem {
   harga: number;
   jumlah: number;
   subtotal: number;
+  warna?: string;
+  ukuran?: string;
 }
 
 export interface OrderAddress {
