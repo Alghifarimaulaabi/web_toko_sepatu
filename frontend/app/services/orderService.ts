@@ -41,8 +41,6 @@ export interface OrdersResponse {
   };
 }
 
-
-
 export const getOrders = async (page: number = 1, limit: number = 10, status?: string): Promise<OrdersResponse> => {
   const token = localStorage.getItem('token');
   if (!token) {
@@ -143,5 +141,25 @@ export const updateOrderStatusAdmin = async (orderId: number, status: string): P
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.message || 'Gagal memperbarui status pesanan');
+  }
+};
+
+export const cancelOrder = async (orderId: number): Promise<void> => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Silakan login terlebih dahulu');
+  }
+
+  const response = await fetch(`${API_URL}/api/orders/${orderId}/cancel`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Gagal membatalkan pesanan');
   }
 };

@@ -18,13 +18,16 @@ import {
   Loader2,
   Star,
   MessageSquare
+  Ban,
+  AlertTriangle
 } from 'lucide-react';
 import Navbar from '../components/navbar';
 import Footer from '../components/Footer';
-import { getOrders, Order } from '../services/orderService';
+import { getOrders, cancelOrder, Order } from '../services/orderService';
 import { formatRupiah } from '../context/CartContext';
 import TestimoniForm from '../components/TestimoniForm';
 import { checkUserReview } from '../services/testimoniService';
+import { toast } from 'sonner';
 
 
 
@@ -60,6 +63,7 @@ export default function RiwayatPage() {
     produkGambar: string;
   } | null>(null);
   const [reviewedItems, setReviewedItems] = useState<Set<string>>(new Set());
+  const [cancellingId, setCancellingId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -105,6 +109,29 @@ export default function RiwayatPage() {
 
   const toggleExpand = (orderId: number) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
+  };
+
+  const handleCancelOrder = async (orderId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const confirmed = window.confirm('Apakah Anda yakin ingin membatalkan pesanan ini? Tindakan ini tidak dapat dibatalkan.');
+    if (!confirmed) return;
+
+    try {
+      setCancellingId(orderId);
+      await cancelOrder(orderId);
+      toast.success('Pesanan berhasil dibatalkan');
+      fetchOrders();
+    } catch (error: any) {
+      toast.error(error.message || 'Gagal membatalkan pesanan');
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
+  // Helper: check if a delivered order has unreviewed items
+  const hasUnreviewedItems = (order: Order) => {
+    if (order.status !== 'DELIVERED') return false;
+    return order.items.some(item => !reviewedItems.has(`${order.id}-${item.id}`));
   };
 
   const getStatusInfo = (status: string) => {
@@ -219,6 +246,13 @@ export default function RiwayatPage() {
                         </div>
 
                         <div className="flex flex-wrap items-center gap-3 md:gap-6 ml-16 md:ml-0">
+                          {/* Review notification badge */}
+                          {hasUnreviewedItems(order) && (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 animate-pulse">
+                              <AlertTriangle size={14} />
+                              Berikan Ulasan
+                            </span>
+                          )}
                           <div className="text-right">
                             <div className="text-sm text-[#8D6E63]">Total</div>
                             <div className="font-bold text-[#3E2723]">
@@ -232,6 +266,21 @@ export default function RiwayatPage() {
                               {statusInfo.label}
                             </span>
                           </div>
+                          {/* Cancel button for PENDING orders */}
+                          {order.status === 'PENDING' && (
+                            <button
+                              onClick={(e) => handleCancelOrder(order.id, e)}
+                              disabled={cancellingId === order.id}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {cancellingId === order.id ? (
+                                <Loader2 size={14} className="animate-spin" />
+                              ) : (
+                                <Ban size={14} />
+                              )}
+                              {cancellingId === order.id ? 'Membatalkan...' : 'Batalkan'}
+                            </button>
+                          )}
                           <button className="text-[#8D6E63] hover:text-[#5D4037] transition p-2">
                             <ChevronDown 
                               size={20} 

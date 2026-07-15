@@ -68,7 +68,7 @@ export default function Hero() {
 
   return (
     <section
-      className="relative w-full h-[550px] px-7 sm:h-[450px] md:h-[500px] lg:h-[700px] flex items-center justify-center overflow-hidden bg-brand-darkest"
+      className="relative w-full h-[100dvh] px-7 sm:h-[450px] md:h-[500px] lg:h-[700px] flex items-center justify-center overflow-hidden bg-brand-darkest"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       aria-roledescription="carousel"
