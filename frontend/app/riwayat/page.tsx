@@ -17,7 +17,7 @@ import {
   ShoppingBag,
   Loader2,
   Star,
-  MessageSquare
+  MessageSquare,
   Ban,
   AlertTriangle
 } from 'lucide-react';
