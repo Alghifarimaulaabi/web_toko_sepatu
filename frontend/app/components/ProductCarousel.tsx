@@ -67,7 +67,7 @@ export default function ProductCarousel() {
           {carouselProducts.map((product) => (
             <div
               key={product.id}
-              className="min-w-[160px] w-[calc(50%-8px)] sm:w-auto sm:min-w-[280px] md:min-w-[320px] snap-start bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm hover:shadow-xl transition duration-300 border border-[#D7CCC8]/50 flex flex-col"
+              className="min-w-[250px] w-[calc(50%-8px)] sm:w-auto sm:min-w-[280px] md:min-w-[320px] snap-start bg-white rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-sm hover:shadow-xl transition duration-300 border border-[#D7CCC8]/50 flex flex-col"
             >
               <div className="relative h-40 sm:h-64 rounded-xl sm:rounded-2xl overflow-hidden mb-3 sm:mb-5 group shrink-0">
                 <Image

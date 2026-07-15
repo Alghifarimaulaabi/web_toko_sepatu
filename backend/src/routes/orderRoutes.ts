@@ -6,7 +6,8 @@ import {
   updateOrderStatus,
   updateOrderStatusByKode,
   getOrderStats,
-  getDashboardSummary
+  getDashboardSummary,
+  cancelOrder
 } from '../controllers/orderController.js';
 import { authMiddleware } from '../middleware/auth.js';
 
@@ -35,5 +36,8 @@ router.put('/update-status', updateOrderStatusByKode);
 
 // Update order status (admin only)
 router.put('/:orderId/status', updateOrderStatus);
+
+// Cancel order (user only)
+router.put('/:orderId/cancel', cancelOrder);
 
 export default router;
