@@ -15,9 +15,9 @@ import {
   XCircle,
   X
 } from 'lucide-react';
-import { getAllUsersAdmin, UserProfile } from '../../services/profileService';
-import { getAllOrdersAdmin, updateOrderStatusAdmin, Order } from '../../services/orderService';
-import { formatRupiah } from '../../context/CartContext';
+import { getAllUsersAdmin, UserProfile } from "@/app/services/profileService";
+import { getAllOrdersAdmin, updateOrderStatusAdmin, Order } from "@/app/services/orderService";
+import { formatRupiah } from "@/app/context/CartContext";
 import Image from 'next/image';
 
 const STATUS_MAP = {

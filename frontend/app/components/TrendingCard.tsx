@@ -6,8 +6,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Heart, ShoppingBag, Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { useWishlist } from "../context/WishlistContext";
-import { useCart } from "../context/CartContext";
+import { useWishlist } from "@/app/context/WishlistContext";
+import { useCart } from "@/app/context/CartContext";
 import { toast } from "sonner";
 import LoginModal from "./LoginModal";
 

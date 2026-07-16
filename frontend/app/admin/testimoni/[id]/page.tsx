@@ -15,7 +15,7 @@ import {
   Calendar,
   Package
 } from 'lucide-react';
-import { getAdminTestimoniByProduk, deleteTestimoni, replyTestimoni, Testimoni } from '../../../services/testimoniService';
+import { getAdminTestimoniByProduk, deleteTestimoni, replyTestimoni, Testimoni } from "@/app/services/testimoniService";
 
 
 

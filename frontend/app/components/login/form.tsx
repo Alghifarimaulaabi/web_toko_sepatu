@@ -1,10 +1,5 @@
 "use client";
-import { API_URL } from "@/lib/api";
-
 import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -16,23 +11,8 @@ import {
   EyeOff,
   AlertCircle,
 } from "lucide-react";
-import { useState } from "react";
 
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-
-// Zod schema for login validation
-const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email/Username wajib diisi"),
-  password: z
-    .string()
-    .min(1, "Password wajib diisi")
-    .min(6, "Password minimal 6 karakter"),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
+import { useLogin } from "@/app/hooks/useLogin";
 
 // Animation variants
 const containerVariants = {
@@ -52,54 +32,14 @@ const itemVariants = {
 };
 
 export default function Form() {
-  const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
-
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-  });
-
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: data.email,
-          password: data.password,
-        }),
-      });
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        toast.error(result.message || "Login gagal");
-        return;
-      }
-
-      // Save to localStorage
-      localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
-      window.dispatchEvent(new Event("user-auth-change"));
-
-      toast.success(result.message || "Login berhasil!");
-      setTimeout(() => {
-        if (result.user.role === 'ADMIN') {
-          router.push("/admin");
-        } else {
-          router.push("/");
-        }
-      }, 1000);
-    } catch (error) {
-      toast.error("Terjadi kesalahan pada jaringan");
-    }
-  };
+    errors,
+    isSubmitting,
+    showPassword,
+    setShowPassword,
+  } = useLogin();
 
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#EFECE7]">
@@ -180,7 +120,7 @@ export default function Form() {
           </motion.div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
 
             {/* Email */}
             <motion.div variants={itemVariants}>

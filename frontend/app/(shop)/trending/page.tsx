@@ -1,56 +1,21 @@
 "use client";
-import { API_URL } from "@/lib/api";
-
-import { useState, useEffect } from "react";
-import Navbar from "../components/navbar";
-import Footer from "../components/Footer";
+import { useProductList } from "@/app/hooks/useProductList";
+import Navbar from "@/app/components/navbar";
+import Footer from "@/app/components/Footer";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag, Star, TrendingUp, Search, ChevronLeft, ChevronRight } from "lucide-react";
 
-const ITEMS_PER_PAGE = 6;
-
 export default function TrendingPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [trendingProducts, setTrendingProducts] = useState<any[]>([]);
-
-  useEffect(() => {
-    fetch(`${API_URL}/api/products`, { cache: 'no-store' })
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          const formatted = data
-            .map((p: any) => ({
-              id: p.id,
-              image: p.gambar,
-              title: p.nama_produk,
-              price: `Rp. ${Number(p.harga).toLocaleString('id-ID')}`,
-              rating: Number(p.rating ?? 0),
-              terjual: Number(p.terjual ?? 0),
-            }))
-            .sort((a, b) => (b.rating - a.rating) || (b.terjual - a.terjual) || b.id - a.id);
-
-          setTrendingProducts(formatted);
-        }
-      })
-      .catch(err => console.error("Error fetching trending products:", err));
-  }, []);
-
-  const filteredProducts = [...trendingProducts]
-    .filter((product) => product.title.toLowerCase().includes(searchQuery.toLowerCase()));
-
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
-  };
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
-  };
+  const {
+    products: currentProducts,
+    searchQuery,
+    setSearchQuery,
+    currentPage,
+    totalPages,
+    handlePrevPage,
+    handleNextPage,
+  } = useProductList({ itemsPerPage: 6, sortByTrending: true });
 
   return (
     <main className="min-h-screen bg-[#EFECE7] font-sans selection:bg-[#8D6E63] selection:text-white flex flex-col">
@@ -79,10 +44,7 @@ export default function TrendingPage() {
               type="text"
               placeholder="Cari sepatu impianmu..."
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1); // Reset to page 1 on search
-              }}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-4 rounded-full border-2 border-[#D7CCC8]/50 bg-white/70 focus:bg-white focus:outline-none focus:border-[#8D6E63] transition shadow-sm text-[#3E2723] font-medium"
             />
           </div>

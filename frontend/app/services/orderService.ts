@@ -1,5 +1,5 @@
 import { API_URL } from "@/lib/api";
-import { Product } from '../data/products';
+import { Product } from "@/app/data/products";
 
 export interface OrderItem {
   id: number;

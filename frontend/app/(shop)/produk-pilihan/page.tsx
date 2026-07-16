@@ -1,57 +1,23 @@
 "use client";
-import { API_URL } from "@/lib/api";
-
-import { useState, useEffect } from "react";
-import Navbar from "../components/navbar";
-import Footer from "../components/Footer";
+import { useProductList } from "@/app/hooks/useProductList";
+import Navbar from "@/app/components/navbar";
+import Footer from "@/app/components/Footer";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag, Star, Sparkles, Search, ChevronLeft, ChevronRight } from "lucide-react";
 
-const ITEMS_PER_PAGE = 8;
-
 export default function SelectedProductsPage() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedProducts, setSelectedProducts] = useState<any[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState("SEMUA");
-
-  useEffect(() => {
-    fetch(`${API_URL}/api/products`, { cache: 'no-store' })
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          const formatted = data.map((p: any) => ({
-            id: p.id,
-            image: p.gambar,
-            title: p.nama_produk,
-            price: `Rp. ${Number(p.harga).toLocaleString('id-ID')}`,
-            rating: Number(p.rating ?? 0).toFixed(1),
-            kategori: p.kategori,
-          }));
-          setSelectedProducts(formatted);
-        }
-      })
-      .catch(err => console.error("Error fetching products:", err));
-  }, []);
-
-  const filteredProducts = selectedProducts.filter((product) => {
-    const matchSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchCategory = selectedCategory === "SEMUA" || product.kategori === selectedCategory;
-    return matchSearch && matchCategory;
-  });
-
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
-  };
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
-  };
+  const {
+    products: currentProducts,
+    searchQuery,
+    setSearchQuery,
+    currentPage,
+    totalPages,
+    selectedCategory,
+    setSelectedCategory,
+    handlePrevPage,
+    handleNextPage,
+  } = useProductList({ itemsPerPage: 8 });
 
   return (
     <main className="min-h-screen bg-[#EFECE7] font-sans selection:bg-[#8D6E63] selection:text-white flex flex-col">
@@ -79,10 +45,7 @@ export default function SelectedProductsPage() {
               type="text"
               placeholder="Cari sepatu impianmu..."
               value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
-              }}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-4 py-4 rounded-full border-2 border-[#D7CCC8]/50 bg-white/70 focus:bg-white focus:outline-none focus:border-[#8D6E63] transition shadow-sm text-[#3E2723] font-medium"
             />
           </div>
@@ -92,7 +55,7 @@ export default function SelectedProductsPage() {
             {["SEMUA", "RUNNING", "FUTSAL", "CASUAL", "FORMAL", "SANDAL"].map((cat) => (
               <button
                 key={cat}
-                onClick={() => { setSelectedCategory(cat); setCurrentPage(1); }}
+                onClick={() => setSelectedCategory(cat)}
                 className={`px-5 py-2 rounded-full font-semibold transition-all duration-300 ${
                   selectedCategory === cat
                     ? "bg-[#5D4037] text-white shadow-md"
