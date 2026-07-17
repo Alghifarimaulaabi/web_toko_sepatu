@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Package, ShoppingBag, Users, MessageSquare, ChevronRight } from 'lucide-react';
-import SalesChart from './SalesChart';
-import DashboardStats from './DashboardStats';
+import SalesChart from './components/SalesChart';
+import DashboardStats from './components/DashboardStats';
 
 export default function AdminDashboard() {
   return (

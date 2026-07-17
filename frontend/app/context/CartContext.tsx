@@ -1,7 +1,15 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
-import type { Product } from "@/app/data/products";
+export interface Product {
+  id: number;
+  image: string;
+  title: string;
+  price: string | number;
+  rating?: number | string;
+  description?: string;
+  [key: string]: any;
+}
 
 export interface CartItem {
   product: Product;
