@@ -42,7 +42,7 @@ const Navbar = () => {
                                     whileHover={{ scale: 1.05 }}
                                     className="text-2xl font-display font-black tracking-tighter text-white"
                                 >
-                                    L<span className="text-brand-light">W</span>
+                                    S<span className="text-brand-light">C</span>
                                 </motion.h3>
                             </Link>
                         </div>

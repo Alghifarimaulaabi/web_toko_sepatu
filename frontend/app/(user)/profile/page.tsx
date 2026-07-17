@@ -69,7 +69,7 @@ export default function ProfilePage() {
                       <Image
                         src={fotoPreview}
                         alt="Profile Photo"
-                        fill
+                        fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         unoptimized
                         className="object-cover"
                       />

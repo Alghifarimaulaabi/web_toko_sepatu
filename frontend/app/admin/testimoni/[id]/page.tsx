@@ -197,7 +197,7 @@ export default function AdminTestimoniDetail({ params }: { params: Promise<{ id:
                 <p className="text-[#3E2723] leading-relaxed">{testimoni.komentar}</p>
                 {testimoni.gambar && (
                   <div className="mt-3 relative w-32 h-32 rounded-xl overflow-hidden border border-[#D7CCC8]">
-                    <Image src={testimoni.gambar.startsWith('http') ? testimoni.gambar : `${API_URL}${testimoni.gambar}`} alt="Foto Ulasan" fill unoptimized className="object-cover" />
+                    <Image src={testimoni.gambar.startsWith('http') ? testimoni.gambar : `${API_URL}${testimoni.gambar}`} alt="Foto Ulasan" fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" unoptimized className="object-cover" />
                   </div>
                 )}
                 {testimoni.balasan ? (

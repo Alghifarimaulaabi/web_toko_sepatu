@@ -124,7 +124,7 @@ export default function AdminTestimoni() {
                   <Image
                     src={product.gambar.startsWith('http') ? product.gambar : `${API_URL}${product.gambar}`}
                     alt={product.nama_produk}
-                    fill
+                    fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     unoptimized
                     className="object-cover"
                   />

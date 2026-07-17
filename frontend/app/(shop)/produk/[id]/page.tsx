@@ -1,5 +1,5 @@
 "use client";
-import { use } from "react";
+import { use, useState } from "react";
 import { API_URL } from "@/lib/api";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,10 +8,14 @@ import Footer from "@/app/components/Footer";
 import LoginModal from "@/app/components/LoginModal";
 import ProductCheckoutModal from "@/app/components/ProductCheckoutModal";
 import RatingStars from "@/app/components/RatingStars";
-import { Heart, ShoppingBag, Star, ArrowLeft, Truck, ShieldCheck, Undo2, Loader2 } from "lucide-react";
+import { Heart, ShoppingBag, Star, ArrowLeft, Truck, ShieldCheck, Undo2, Loader2, TrendingUp } from "lucide-react";
 import { useProductDetail } from "@/app/hooks/useProductDetail";
+import { useProductList } from "@/app/hooks/useProductList";
 export default function ProductDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const [activeCard, setActiveCard] = useState<number | null>(null);
+  const { allProducts } = useProductList({ itemsPerPage: 100 });
+  const otherProducts = allProducts.filter((p) => p.id !== Number(id)).slice(0, 4);
   const {
     product,
     loading,
@@ -86,7 +90,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                 <Image
                   src={currentImage || product.image}
                   alt={product.title}
-                  fill
+                  fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   unoptimized
                   className={`object-cover transition duration-700 ease-out ${isHovered ? "scale-110" : "scale-100"}`}
                 />
@@ -113,7 +117,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                       thumb === 1 ? "border-[#5D4037]" : "border-transparent hover:border-[#D7CCC8]"
                     }`}
                   >
-                    <Image src={currentImage || product.image} alt={`Thumbnail ${thumb}`} fill unoptimized className="object-cover" />
+                    <Image src={currentImage || product.image} alt={`Thumbnail ${thumb}`} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" unoptimized className="object-cover" />
                   </div>
                 ))} */}
               </div>
@@ -241,7 +245,9 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
               </div>
 
               {/* Testimonis Section */}
-              <div className="mt-8 pt-8 border-t border-[#D7CCC8]/30">
+            </div>
+          </div>
+                        <div className="mt-8 pt-8 border-t border-[#D7CCC8]/30">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="font-bold text-[#3E2723] text-lg">Ulasan Pembeli</h3>
@@ -287,7 +293,7 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                         <p className="text-[#5D4037] mt-2 text-sm leading-relaxed">{t.komentar}</p>
                         {t.gambar && (
                           <div className="mt-3 relative w-32 h-32 rounded-xl overflow-hidden border border-[#D7CCC8]">
-                            <Image src={t.gambar.startsWith('http') ? t.gambar : `${API_URL}${t.gambar}`} alt="Foto Ulasan" fill unoptimized className="object-cover" />
+                            <Image src={t.gambar.startsWith('http') ? t.gambar : `${API_URL}${t.gambar}`} alt="Foto Ulasan" fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" unoptimized className="object-cover" />
                           </div>
                         )}
                         {t.balasan && (
@@ -329,10 +335,74 @@ export default function ProductDetail({ params }: { params: Promise<{ id: string
                   </div>
                 )}
               </div>
-            </div>
-          </div>
+
         </div>
       </section>
+
+      {/* Beli Sepatu Lainnya Section */}
+      {otherProducts.length > 0 && (
+        <section className="py-16 bg-white/50 border-t border-[#D7CCC8]/30">
+          <div className="container mx-auto px-4 md:px-6 max-w-6xl">
+            <div className="flex flex-col items-center md:items-start mb-10 gap-2">
+              <div className="flex items-center gap-2 text-[#5D4037] font-bold">
+                <TrendingUp size={20} />
+                <span className="uppercase tracking-widest text-sm">Rekomendasi</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#3E2723] text-center md:text-left">Beli Sepatu Lainnya</h2>
+            </div>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              {otherProducts.map((product) => (
+                <div
+                  key={product.id}
+                  onClick={() => setActiveCard(activeCard === product.id ? null : product.id)}
+                  className="relative h-[280px] sm:h-[320px] rounded-2xl overflow-hidden group shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer border border-[#D7CCC8]/30"
+                >
+                  {/* Image Container */}
+                  <Image
+                    src={product.image.startsWith('http') ? product.image : `/images/${product.image}`}
+                    alt={product.title}
+                    fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    unoptimized
+                    className={`object-cover transition duration-700 ease-out ${activeCard === product.id ? 'scale-110' : 'md:group-hover:scale-110'}`}
+                  />
+                  
+                  {/* Overlay Gradient */}
+                  <div className={`absolute inset-0 bg-gradient-to-t from-[#2D1B15]/90 via-[#2D1B15]/40 to-transparent transition-opacity duration-300 ${activeCard === product.id ? 'opacity-100' : 'opacity-0 md:opacity-100'}`}></div>
+
+                  {/* Rating */}
+                  <div className={`absolute top-4 right-4 flex items-center gap-1 rounded-full bg-white/95 backdrop-blur-md px-2.5 py-1 text-xs font-bold text-[#3E2723] shadow-md transition-opacity duration-300 ${activeCard === product.id ? 'opacity-100' : 'opacity-0 md:opacity-100'}`}>
+                    <Star size={14} className="fill-[#FFB300] text-[#FFB300]" />
+                    {Number(product.rating).toFixed(1)}
+                  </div>
+
+                  {/* Content Box */}
+                  <div className={`absolute bottom-0 left-0 right-0 p-5 z-20 transform transition-all duration-300 ${activeCard === product.id ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0 md:opacity-100 md:translate-y-0 md:group-hover:-translate-y-2'}`}>
+                    <div className={`flex justify-between items-end mb-4 transition-opacity duration-300 ${activeCard === product.id ? 'opacity-100' : 'opacity-0 md:opacity-100'}`}>
+                      <div>
+                        <h3 className="font-bold text-lg text-white mb-1 drop-shadow-md truncate w-40">
+                          {product.title}
+                        </h3>
+                        <p className="text-[#D7CCC8] font-bold text-sm drop-shadow-sm">{product.price}</p>
+                      </div>
+                    </div>
+
+                    <div className={`flex items-center gap-3 transition-all duration-300 ${activeCard === product.id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 md:opacity-0 md:group-hover:opacity-100 md:group-hover:translate-y-0'}`}>
+                      <Link 
+                        href={`/produk/${product.id}`}
+                        onClick={(e) => e.stopPropagation()} 
+                        className="flex-1 flex justify-center items-center rounded-xl bg-[#8D6E63] py-2.5 px-3 font-bold text-white hover:bg-[#5D4037] transition shadow-lg text-sm"
+                      >
+                        Lihat Detail
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <Footer />
 

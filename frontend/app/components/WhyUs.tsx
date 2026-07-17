@@ -56,7 +56,7 @@ export default function WhyUs() {
               <Image 
                 src="/images/toko.jpg" 
                 alt="Kenapa Memilih Kami" 
-                fill 
+                fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" 
                 className="object-cover group-hover:scale-105 transition duration-700 ease-in-out"
               />
               {/* Overlay styling for extra premium feel */}

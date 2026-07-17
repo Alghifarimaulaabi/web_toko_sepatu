@@ -402,7 +402,7 @@ export default function AdminPengguna() {
                           {selectedOrder.items.map((item) => (
                             <div key={item.id} className="flex gap-2 items-center">
                               <div className="relative w-8 h-8 rounded bg-white flex-shrink-0 border border-[#D7CCC8]/30">
-                                <Image src={item.gambar.startsWith('http') ? item.gambar : `${API_URL}${item.gambar}`} alt={item.nama_produk} fill unoptimized className="object-cover rounded" />
+                                <Image src={item.gambar.startsWith('http') ? item.gambar : `${API_URL}${item.gambar}`} alt={item.nama_produk} fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" unoptimized className="object-cover rounded" />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="font-semibold text-[10px] text-[#3E2723] truncate">{item.nama_produk}</div>

@@ -9,7 +9,7 @@ export default function Footer() {
           
           {/* Brand & About */}
           <div className="space-y-4">
-            <h3 className="text-3xl font-bold text-white mb-6">Logo Website</h3>
+            <h3 className="text-3xl font-bold text-white mb-6">Shoes Center</h3>
             <p className="leading-relaxed">
               Kami adalah toko sepatu terpercaya yang menyediakan berbagai pilihan sepatu original dengan kualitas terbaik dan harga yang kompetitif.
             </p>
@@ -65,7 +65,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="text-[#8D6E63] shrink-0" size={20} />
-                <span>support@logowebsite.com</span>
+                <span>support@ShoesCenter.com</span>
               </li>
             </ul>
           </div>
@@ -74,7 +74,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-[#4E342E] pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
-          <p>&copy; {new Date().getFullYear()} Logo Website. Hak Cipta Dilindungi.</p>
+          <p>&copy; {new Date().getFullYear()} ShoesCenter. Hak Cipta Dilindungi.</p>
           <div className="flex gap-4">
             <span className="hover:text-white cursor-pointer">Privasi</span>
             <span className="hover:text-white cursor-pointer">Ketentuan</span>

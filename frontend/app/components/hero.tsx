@@ -5,6 +5,8 @@ import Image from "next/image";
 import { Search, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { useProductList } from "@/app/hooks/useProductList";
+import RatingStars from "./RatingStars";
 
 const SLIDES = [
   { id: 1, src: "/images/hero.jpeg", alt: "Koleksi Sepatu Premium 1" },
@@ -17,6 +19,9 @@ export default function Hero() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [direction, setDirection] = useState(0);
+  const [showResults, setShowResults] = useState(false);
+  
+  const { allProducts, searchQuery, setSearchQuery, loading } = useProductList({ itemsPerPage: 100 });
 
   const nextSlide = useCallback(() => {
     setDirection(1);
@@ -100,7 +105,7 @@ export default function Hero() {
             <Image
               src={SLIDES[currentIndex].src}
               alt={SLIDES[currentIndex].alt}
-              fill
+              fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover"
               priority={currentIndex === 0}
             />
@@ -150,16 +155,76 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative max-w-md w-full mb-6 md:mb-10 pointer-events-auto"
+          className="relative max-w-md w-full mb-6 md:mb-10 pointer-events-auto z-50"
         >
-          <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-            <Search className="text-white/60" size={20} />
+          <div className="relative">
+            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+              <Search className="text-white/60" size={20} />
+            </div>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowResults(true);
+              }}
+              onFocus={() => setShowResults(true)}
+              onBlur={() => setTimeout(() => setShowResults(false), 200)}
+              placeholder="Cari sepatu favoritmu..."
+              className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder:text-white/60 py-3 md:py-4 pl-12 pr-6 rounded-full outline-none focus:ring-4 focus:ring-brand-light/30 transition-all shadow-lg hover:bg-white/20 focus:bg-white/30"
+            />
           </div>
-          <input
-            type="search"
-            placeholder="Cari sepatu favoritmu..."
-            className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder:text-white/60 py-3 md:py-4 pl-12 pr-6 rounded-full outline-none focus:ring-4 focus:ring-brand-light/30 transition-all shadow-lg hover:bg-white/20 focus:bg-white/30"
-          />
+          
+          {/* Floating Search Results */}
+          <AnimatePresence>
+            {showResults && searchQuery && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[400px] overflow-y-auto z-50 text-left border border-gray-100"
+              >
+                {loading ? (
+                  <div className="p-6 text-center text-gray-500 font-medium">Mencari...</div>
+                ) : allProducts.length > 0 ? (
+                  <div className="flex flex-col">
+                    {allProducts.slice(0, 5).map((product) => (
+                      <Link
+                        key={product.id}
+                        href={`/produk/${product.id}`}
+                        className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-0"
+                        onClick={() => setShowResults(false)}
+                      >
+                        <div className="relative w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
+                          <Image
+                            src={product.image.startsWith('http') ? product.image : `/images/${product.image}`}
+                            alt={product.title}
+                            fill sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-gray-900 truncate">{product.title}</h4>
+                          <div className="flex items-center gap-1 mt-1">
+                            <RatingStars rating={product.rating} size={14} />
+                            <span className="text-xs text-gray-500 ml-1">({product.rating})</span>
+                          </div>
+                          <p className="font-bold text-brand mt-1">{product.price}</p>
+                        </div>
+                      </Link>
+                    ))}
+                    {allProducts.length > 5 && (
+                      <Link href={`/produk-pilihan?search=${searchQuery}`} className="p-3 text-center text-sm font-bold text-brand hover:bg-brand/5 transition-colors border-t border-gray-100">
+                        Lihat semua hasil ({allProducts.length})
+                      </Link>
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-6 text-center text-gray-500 font-medium">Tidak ada produk ditemukan</div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         <motion.h1
