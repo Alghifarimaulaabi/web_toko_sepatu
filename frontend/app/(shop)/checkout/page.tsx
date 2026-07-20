@@ -146,6 +146,9 @@ export default function CheckoutPage() {
                     </label>
                     <input
                       required
+                      type="text"
+                      pattern="^[a-zA-Z0-9\s.,]+$"
+                      title="Hanya huruf, angka, spasi, titik (.), dan koma (,)"
                       name="name"
                       value={address.name}
                       onChange={handleChange}
@@ -154,12 +157,16 @@ export default function CheckoutPage() {
                     />
                   </div>
 
-                  <div>
+                   <div>
                     <label className="text-sm font-medium text-[#5D4037] mb-1 block">
                       Nomor Telepon
                     </label>
                     <input
                       required
+                      type="tel"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={15}
                       name="phone"
                       value={address.phone}
                       onChange={handleChange}
@@ -174,6 +181,10 @@ export default function CheckoutPage() {
                     </label>
                     <input
                       required
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={5}
                       name="postalCode"
                       value={address.postalCode}
                       onChange={handleChange}
@@ -188,6 +199,9 @@ export default function CheckoutPage() {
                     </label>
                     <input
                       required
+                      type="text"
+                      pattern="^[a-zA-Z0-9\s.,]+$"
+                      title="Hanya huruf, angka, spasi, titik (.), dan koma (,)"
                       name="city"
                       value={address.city}
                       onChange={handleChange}
