@@ -74,6 +74,20 @@ export const useProfile = () => {
 
       const res = await updateProfile(form);
       setProfile(res.user);
+      
+      // Update local storage user data and notify navbar
+      const currentUser = localStorage.getItem("user");
+      if (currentUser) {
+        try {
+          const parsed = JSON.parse(currentUser);
+          const updatedUser = { ...parsed, nama: res.user.nama, email: res.user.email };
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+          window.dispatchEvent(new Event("user-auth-change"));
+        } catch (error) {
+          console.error("Error updating user storage", error);
+        }
+      }
+
       toast.success("Profil berhasil diperbarui!");
     } catch (error: any) {
       console.error("Error updating profile:", error);

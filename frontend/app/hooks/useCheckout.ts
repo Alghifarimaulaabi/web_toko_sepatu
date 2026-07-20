@@ -61,11 +61,22 @@ export const useCheckout = () => {
   }, []);
 
   const subtotal = itemsToCheckout.reduce((acc, item) => acc + cleanPrice(item.product.price) * item.quantity, 0);
-  const shippingFee = payment === "cod" ? 0 : 15000;
+  const shippingFee = payment === "cod" ? 0 : 25000;
   const total = subtotal + shippingFee;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setAddress((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    let sanitizedValue = value;
+
+    if (name === "phone" || name === "postalCode") {
+      // Only allow numbers
+      sanitizedValue = value.replace(/\D/g, "");
+    } else if (name === "name" || name === "city") {
+      // Allow letters, numbers, spaces, and dot/comma (no weird symbols)
+      sanitizedValue = value.replace(/[^a-zA-Z0-9\s.,]/g, "");
+    }
+
+    setAddress((prev) => ({ ...prev, [name]: sanitizedValue }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

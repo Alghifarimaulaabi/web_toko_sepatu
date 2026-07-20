@@ -11,20 +11,36 @@ export const useNavbar = () => {
     const router = useRouter();
 
     useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-            try {
-                setUser(JSON.parse(storedUser));
-            } catch (error) {
-                console.error("Failed to parse user data", error);
+        const loadUser = () => {
+            const storedUser = localStorage.getItem("user");
+            if (storedUser) {
+                try {
+                    setUser(JSON.parse(storedUser));
+                } catch (error) {
+                    console.error("Failed to parse user data", error);
+                }
+            } else {
+                setUser(null);
             }
-        }
+        };
+
+        loadUser();
+        
+        const handleAuthChange = () => {
+            loadUser();
+        };
+
+        window.addEventListener("user-auth-change", handleAuthChange);
         
         const handleScroll = () => {
             setScrolled(window.scrollY > 20);
         };
         window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
+        
+        return () => {
+            window.removeEventListener("user-auth-change", handleAuthChange);
+            window.removeEventListener("scroll", handleScroll);
+        };
     }, []);
 
     const confirmLogout = () => {
