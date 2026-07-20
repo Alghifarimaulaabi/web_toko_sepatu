@@ -72,8 +72,8 @@ export const useNavbar = () => {
     const navLinks = [
         { name: 'Beranda', path: '/' },
         { name: 'Produk Pilihan', path: '/produk-pilihan' },
-        { name: 'Sedang Tren', path: '#Trending' },
-        { name: 'Kenapa Kami', path: '#whyUs' }
+        { name: 'Sedang Tren', path: '/#Trending' },
+        { name: 'Kenapa Kami', path: '/#whyUs' }
     ];
 
     const sidebarLinks = [
