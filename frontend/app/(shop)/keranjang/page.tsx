@@ -75,8 +75,8 @@ export default function KeranjangPage() {
         <div className="container mx-auto px-4 md:px-6 max-w-7xl">
           {/* Back Link */}
           <Link
-            href="/produk-pilihan"
-            className="inline-flex items-center gap-2 text-[#8D6E63] hover:text-[#5D4037] mb-8 font-semibold transition group"
+            href="/"
+            className="inline-flex items-center gap-2 text-[#8D6E63] hover:text-[#5D4037] mb-8 font-semibold transition group cursor-pointer"
           >
             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
             Lanjut Belanja
