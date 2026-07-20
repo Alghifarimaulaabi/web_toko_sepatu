@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { ShoppingCart, Heart, History } from "lucide-react";
 
 export const useNavbar = () => {
-    const [user, setUser] = useState<{ nama: string; email: string } | null>(null);
+    const [user, setUser] = useState<{ nama: string; email: string; foto?: string } | null>(null);
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);

@@ -80,7 +80,7 @@ export const useProfile = () => {
       if (currentUser) {
         try {
           const parsed = JSON.parse(currentUser);
-          const updatedUser = { ...parsed, nama: res.user.nama, email: res.user.email };
+          const updatedUser = { ...parsed, nama: res.user.nama, email: res.user.email, foto: res.user.foto };
           localStorage.setItem("user", JSON.stringify(updatedUser));
           window.dispatchEvent(new Event("user-auth-change"));
         } catch (error) {

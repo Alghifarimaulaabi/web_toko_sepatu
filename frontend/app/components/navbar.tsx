@@ -7,7 +7,8 @@ import { useWishlist } from "@/app/context/WishlistContext";
 import { useCart } from "@/app/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavbar } from "@/app/hooks/useNavbar";
-
+import Image from "next/image";
+import { API_URL } from "@/lib/api";
 const Navbar = () => {
     const { wishlist } = useWishlist();
     const { getCartCount } = useCart();
@@ -111,13 +112,29 @@ const Navbar = () => {
                             {user ? (
                                 <div className="hidden md:flex items-center gap-4">
                                     <Link href="/profile" className="group cursor-pointer relative" title={user.nama}>
-                                        <motion.div
-                                            whileHover={{ scale: 1.1 }}
-                                            whileTap={{ scale: 0.95 }}
-                                            className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-light to-brand flex items-center justify-center text-white font-bold font-display text-sm uppercase shadow-lg ring-2 ring-white/20 group-hover:ring-brand-light/50 transition-all"
-                                        >
-                                            {user.nama.charAt(0)}
-                                        </motion.div>
+                                        {user.foto ? (
+                                            <motion.div
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                className="w-9 h-9 rounded-full overflow-hidden shadow-lg ring-2 ring-white/20 group-hover:ring-brand-light/50 transition-all relative"
+                                            >
+                                                <Image 
+                                                    src={user.foto.startsWith('http') ? user.foto : `${API_URL}${user.foto}`} 
+                                                    alt={user.nama} 
+                                                    fill sizes="36px"
+                                                    unoptimized
+                                                    className="object-cover"
+                                                />
+                                            </motion.div>
+                                        ) : (
+                                            <motion.div
+                                                whileHover={{ scale: 1.1 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-light to-brand flex items-center justify-center text-white font-bold font-display text-sm uppercase shadow-lg ring-2 ring-white/20 group-hover:ring-brand-light/50 transition-all"
+                                            >
+                                                {user.nama.charAt(0)}
+                                            </motion.div>
+                                        )}
                                     </Link>
                                     <motion.button 
                                         whileHover={{ scale: 1.05 }}
@@ -189,9 +206,21 @@ const Navbar = () => {
                             {/* Sidebar User Info */}
                             {user ? (
                                 <div className="p-6 bg-[#5D4037] text-white flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center font-bold text-lg">
-                                        {user.nama.charAt(0)}
-                                    </div>
+                                    {user.foto ? (
+                                        <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/20">
+                                            <Image 
+                                                src={user.foto.startsWith('http') ? user.foto : `${API_URL}${user.foto}`} 
+                                                alt={user.nama} 
+                                                fill sizes="48px"
+                                                unoptimized
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center font-bold text-lg">
+                                            {user.nama.charAt(0)}
+                                        </div>
+                                    )}
                                     <div className="flex-1 min-w-0">
                                         <p className="font-bold truncate">{user.nama}</p>
                                         <p className="text-white/70 text-sm truncate">{user.email}</p>
