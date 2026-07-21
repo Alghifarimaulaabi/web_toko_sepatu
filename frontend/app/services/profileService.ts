@@ -95,3 +95,25 @@ export const getAllUsersAdmin = async (page: number = 1, limit: number = 10, sea
 
   return response.json();
 };
+
+export const deleteUserAdmin = async (userId: number): Promise<{ message: string }> => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('Silakan login terlebih dahulu');
+  }
+
+  const response = await fetch(`${API_URL}/api/users/admin/${userId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Gagal menghapus pengguna');
+  }
+
+  return response.json();
+};

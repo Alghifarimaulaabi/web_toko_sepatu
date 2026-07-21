@@ -95,7 +95,7 @@ export default function RegisterPage() {
             className="mb-6 bg-gradient-to-r from-[#3E2723] to-[#8D6E63] bg-clip-text text-center text-3xl font-bold text-transparent"
             variants={itemVariants}
           >
-            Toko Sepatu
+            Shoes Center
           </motion.h2>
 
           {/* Tabs */}

@@ -13,9 +13,10 @@ import {
   Truck, 
   CheckCircle, 
   XCircle,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
-import { getAllUsersAdmin, UserProfile } from "@/app/services/profileService";
+import { getAllUsersAdmin, deleteUserAdmin, UserProfile } from "@/app/services/profileService";
 import { getAllOrdersAdmin, updateOrderStatusAdmin, Order } from "@/app/services/orderService";
 import { formatRupiah } from "@/app/context/CartContext";
 import Image from 'next/image';
@@ -122,6 +123,21 @@ export default function AdminPengguna() {
     }
   };
 
+  const handleDeleteUser = async (userId: number, userName: string) => {
+    if (!window.confirm(`Apakah Anda yakin ingin menghapus pengguna ${userName} secara permanen? Semua data pesanan terkait juga akan terhapus.`)) {
+      return;
+    }
+    
+    try {
+      await deleteUserAdmin(userId);
+      toast.success('Pengguna berhasil dihapus');
+      fetchUsers();
+    } catch (error: any) {
+      console.error('Error deleting user:', error);
+      toast.error(error.message || 'Gagal menghapus pengguna');
+    }
+  };
+
   const getStatusInfo = (status: string) => {
     return STATUS_MAP[status as keyof typeof STATUS_MAP] || STATUS_MAP.PENDING;
   };
@@ -190,7 +206,7 @@ export default function AdminPengguna() {
                       </span>
                     </td>
                     <td className="py-4 text-[#5D4037]">{user.no_hp || '-'}</td>
-                    <td className="py-4 text-right">
+                    <td className="py-4 text-right flex items-center justify-end gap-2">
                       <button
                         onClick={() => handleOpenOrders(user)}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#5D4037] hover:bg-[#3E2723] text-white rounded-md text-xs font-medium transition"
@@ -199,6 +215,15 @@ export default function AdminPengguna() {
                         <Eye size={14} />
                         Lihat Data
                       </button>
+                      {user.role !== 'ADMIN' && (
+                        <button
+                          onClick={() => handleDeleteUser(user.id, user.nama)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 rounded-md text-xs font-medium transition"
+                          title="Hapus Pengguna"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
