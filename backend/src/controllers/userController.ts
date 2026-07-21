@@ -55,7 +55,32 @@ export const getAllUsers = async (req: AuthRequest, res: Response): Promise<void
       }
     });
   } catch (error: any) {
-    console.error('Error fetching all users:', error);
     res.status(500).json({ message: 'Gagal mengambil data pengguna', error: error.message });
+  }
+};
+
+export const deleteUser = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (req.user?.role !== 'ADMIN') {
+      res.status(403).json({ message: 'Akses ditolak. Hanya admin yang dapat mengakses.' });
+      return;
+    }
+
+    const id = parseInt(req.params.id as string);
+
+    const orders = await prisma.pesanan.findMany({ where: { user_id: id } });
+    const orderIds = orders.map(o => o.id);
+
+    await prisma.$transaction([
+      prisma.detailPesanan.deleteMany({ where: { pesanan_id: { in: orderIds } } }),
+      prisma.pesanan.deleteMany({ where: { user_id: id } }),
+      prisma.testimoni.deleteMany({ where: { user_id: id } }),
+      prisma.user.delete({ where: { id } })
+    ]);
+
+    res.status(200).json({ message: 'Pengguna berhasil dihapus' });
+  } catch (error: any) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Gagal menghapus pengguna', error: error.message });
   }
 };

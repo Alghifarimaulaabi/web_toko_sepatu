@@ -4,7 +4,8 @@ import {
   getProductById, 
   createProduct, 
   updateProduct, 
-  deleteProduct 
+  deleteProduct,
+  getLowStockProducts 
 } from '../controllers/product.js';
 import { upload } from '../middleware/upload.js';
 // import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
@@ -15,6 +16,7 @@ const router: Router = Router();
 // router.post('/', authMiddleware, adminMiddleware, upload.single('foto'), createProduct);
 
 router.get('/', getProducts);
+router.get('/low-stock', getLowStockProducts);
 router.get('/:id', getProductById);
 router.post('/', upload.any(), createProduct);
 router.put('/:id', upload.any(), updateProduct);
