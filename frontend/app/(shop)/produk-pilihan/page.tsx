@@ -73,7 +73,7 @@ export default function SelectedProductsPage() {
               {currentProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="bg-white rounded-3xl p-5 shadow-sm hover:shadow-xl transition duration-300 border border-[#D7CCC8]/50 flex flex-col h-full"
+                  className="bg-white rounded-3xl p-2 shadow-sm hover:shadow-xl transition duration-300 border border-[#D7CCC8]/50 flex flex-col h-full"
                 >
                   <div className="relative h-40 sm:h-56 rounded-2xl overflow-hidden mb-3 sm:mb-5 group shrink-0">
                     <Image
@@ -96,7 +96,7 @@ export default function SelectedProductsPage() {
                     <h3 className="font-bold text-sm sm:text-xl text-[#3E2723] mb-1 line-clamp-1">{product.title}</h3>
                     <p className="text-[#8D6E63] font-semibold text-sm sm:text-lg mb-3 sm:mb-5 flex-grow">{product.price}</p>
                     
-                    <Link href={`/produk/${product.id}`} className="w-full flex items-center justify-center gap-2 bg-[#5D4037] hover:bg-[#3E2723] text-white py-3.5 rounded-xl transition duration-300 font-semibold shadow-md shadow-[#5D4037]/20 mt-auto">
+                    <Link href={`/produk/${product.id}`} className="w-full flex items-center justify-center gap-2 bg-[#5D4037] hover:bg-[#3E2723] text-white py-1 rounded-xl transition duration-300 font-semibold shadow-md shadow-[#5D4037]/20 mt-auto text-base">
                       <ShoppingBag size={20} />
                       Beli Sekarang
                     </Link>
