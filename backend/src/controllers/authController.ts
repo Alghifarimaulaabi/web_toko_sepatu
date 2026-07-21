@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { PrismaClient } from "@prisma/client";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { checkLoginAttempt, recordFailedLogin, resetLoginAttempts } from '../middleware/loginRateLimiter.js';
 
 const prisma = new PrismaClient();
 
@@ -66,13 +67,33 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // Rate limit check
+    const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown';
+    const rateLimitCheck = checkLoginAttempt(clientIp, email);
+
+    if (rateLimitCheck.blocked) {
+      const minutes = Math.ceil(rateLimitCheck.retryAfter / 60);
+      res.status(429).json({
+        message: `Terlalu banyak percobaan login gagal. Silakan coba lagi dalam ${minutes} menit.`,
+        retryAfter: rateLimitCheck.retryAfter,
+        remainingAttempts: 0,
+      });
+      return;
+    }
+
     // Check user exists
     const user = await prisma.user.findUnique({
       where: { email },
     });
 
     if (!user) {
-      res.status(400).json({ message: 'Email atau password salah' });
+      const result = recordFailedLogin(clientIp, email);
+      res.status(400).json({
+        message: 'Email atau password salah',
+        remainingAttempts: result.remainingAttempts,
+        locked: result.locked,
+        retryAfter: result.retryAfter,
+      });
       return;
     }
 
@@ -80,9 +101,20 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      res.status(400).json({ message: 'Email atau password salah' });
+      const result = recordFailedLogin(clientIp, email);
+      res.status(400).json({
+        message: result.locked
+          ? 'Akun dikunci sementara karena terlalu banyak percobaan gagal. Silakan coba lagi dalam 15 menit.'
+          : 'Email atau password salah',
+        remainingAttempts: result.remainingAttempts,
+        locked: result.locked,
+        retryAfter: result.retryAfter,
+      });
       return;
     }
+
+    // Login berhasil — reset rate limiter
+    resetLoginAttempts(clientIp, email);
 
     // Generate token
     const token = jwt.sign(
@@ -106,3 +138,4 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({ message: 'Terjadi kesalahan pada server' });
   }
 };
+
