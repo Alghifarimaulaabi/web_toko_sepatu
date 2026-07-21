@@ -150,7 +150,7 @@ const Navbar = () => {
                                     <motion.button 
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
-                                        className="flex items-center justify-center rounded-xl bg-white text-brand-darkest hover:bg-brand-light hover:text-white p-2 px-6 shadow-lg transition-colors font-bold font-display tracking-wide"
+                                        className="flex items-center justify-center rounded-xl bg-white text-brand-darkest hover:bg-brand-light hover:text-white p-2 px-3 shadow-lg transition-colors font-bold font-display tracking-wide"
                                     >
                                         Login
                                     </motion.button>

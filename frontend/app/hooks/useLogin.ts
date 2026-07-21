@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,6 +15,8 @@ export type LoginFormData = z.infer<typeof loginSchema>;
 
 export const useLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [lockoutSeconds, setLockoutSeconds] = useState(0);
+  const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
   const router = useRouter();
 
   const {
@@ -25,7 +27,34 @@ export const useLogin = () => {
     resolver: zodResolver(loginSchema),
   });
 
+  // Countdown timer for lockout
+  useEffect(() => {
+    if (lockoutSeconds <= 0) return;
+    const timer = setInterval(() => {
+      setLockoutSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setRemainingAttempts(null);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [lockoutSeconds]);
+
+  const formatCountdown = useCallback((seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  }, []);
+
   const onSubmit = async (data: LoginFormData) => {
+    if (lockoutSeconds > 0) {
+      toast.error(`Akun terkunci. Coba lagi dalam ${formatCountdown(lockoutSeconds)}`);
+      return;
+    }
+
     try {
       const res = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
@@ -41,9 +70,31 @@ export const useLogin = () => {
       const result = await res.json();
 
       if (!res.ok) {
-        toast.error(result.message || "Login gagal");
+        // Handle rate limit lockout (HTTP 429)
+        if (res.status === 429 || result.locked) {
+          setLockoutSeconds(result.retryAfter || 900);
+          setRemainingAttempts(0);
+          toast.error(result.message || "Terlalu banyak percobaan. Silakan tunggu.");
+          return;
+        }
+
+        // Handle failed login with remaining attempts info
+        if (result.remainingAttempts !== undefined) {
+          setRemainingAttempts(result.remainingAttempts);
+          if (result.remainingAttempts <= 2 && result.remainingAttempts > 0) {
+            toast.error(`${result.message}. Sisa percobaan: ${result.remainingAttempts}`);
+          } else {
+            toast.error(result.message || "Login gagal");
+          }
+        } else {
+          toast.error(result.message || "Login gagal");
+        }
         return;
       }
+
+      // Login berhasil — reset state
+      setRemainingAttempts(null);
+      setLockoutSeconds(0);
 
       // Save to localStorage
       localStorage.setItem("token", result.token);
@@ -70,5 +121,10 @@ export const useLogin = () => {
     isSubmitting,
     showPassword,
     setShowPassword,
+    lockoutSeconds,
+    remainingAttempts,
+    formatCountdown,
+    isLocked: lockoutSeconds > 0,
   };
 };
+

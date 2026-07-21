@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from "react";
+import { API_URL } from "@/lib/api";
 export interface Product {
   id: number;
   image: string;
@@ -91,12 +92,44 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
     loadWishlist();
 
     const handleAuthChange = () => {
+      hasValidated.current = false;
       loadWishlist();
     };
 
     window.addEventListener("user-auth-change", handleAuthChange);
     return () => window.removeEventListener("user-auth-change", handleAuthChange);
   }, [loadWishlist]);
+
+  // Validasi wishlist — hapus produk yang sudah tidak ada di backend
+  const hasValidated = useRef(false);
+  const validateWishlistProducts = useCallback(async () => {
+    if (hasValidated.current) return;
+    hasValidated.current = true;
+    try {
+      const res = await fetch(`${API_URL}/api/products`);
+      if (!res.ok) return;
+      const products = await res.json();
+      if (!Array.isArray(products)) return;
+      const validIds = new Set(products.map((p: any) => p.id));
+
+      setWishlist((prev) => {
+        const filtered = prev.filter((item) => validIds.has(item.id));
+        if (filtered.length !== prev.length) {
+          console.log(`Removed ${prev.length - filtered.length} deleted product(s) from wishlist`);
+        }
+        return filtered.length !== prev.length ? filtered : prev;
+      });
+    } catch (error) {
+      console.error("Failed to validate wishlist products", error);
+    }
+  }, []);
+
+  // Validate wishlist products after initial load
+  useEffect(() => {
+    if (isLoaded && wishlist.length > 0) {
+      validateWishlistProducts();
+    }
+  }, [isLoaded, validateWishlistProducts]);
 
   // Save wishlist whenever it changes
   useEffect(() => {

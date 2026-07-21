@@ -10,6 +10,7 @@ import {
   Eye,
   EyeOff,
   AlertCircle,
+  ShieldAlert,
 } from "lucide-react";
 
 import { useLogin } from "@/app/hooks/useLogin";
@@ -39,6 +40,10 @@ export default function Form() {
     isSubmitting,
     showPassword,
     setShowPassword,
+    lockoutSeconds,
+    remainingAttempts,
+    formatCountdown,
+    isLocked,
   } = useLogin();
 
   return (
@@ -182,16 +187,53 @@ export default function Form() {
               </Link>
             </motion.div>
 
+            {/* Rate Limit Warning */}
+            {isLocked && (
+              <motion.div
+                className="flex items-center gap-3 rounded-xl border-2 border-red-300 bg-red-50 px-4 py-3"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <ShieldAlert className="text-red-500 flex-shrink-0" size={22} />
+                <div>
+                  <p className="text-sm font-semibold text-red-700">Akun Terkunci Sementara</p>
+                  <p className="text-xs text-red-600">Coba lagi dalam <span className="font-bold">{formatCountdown(lockoutSeconds)}</span></p>
+                </div>
+              </motion.div>
+            )}
+
+            {!isLocked && remainingAttempts !== null && remainingAttempts <= 2 && remainingAttempts > 0 && (
+              <motion.div
+                className="flex items-center gap-3 rounded-xl border-2 border-amber-300 bg-amber-50 px-4 py-3"
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <AlertCircle className="text-amber-500 flex-shrink-0" size={20} />
+                <p className="text-sm text-amber-700">
+                  Sisa percobaan: <span className="font-bold">{remainingAttempts}</span>
+                </p>
+              </motion.div>
+            )}
+
             {/* Button */}
             <motion.div variants={itemVariants}>
               <motion.button
                 type="submit"
-                disabled={isSubmitting}
-                className="w-full rounded-xl bg-gradient-to-r from-[#5D4037] to-[#8D6E63] py-3.5 font-bold text-white transition shadow-lg shadow-[#5D4037]/25 hover:shadow-xl hover:shadow-[#5D4037]/30 disabled:opacity-70 disabled:cursor-not-allowed"
-                whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-                whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                disabled={isSubmitting || isLocked}
+                className={`w-full rounded-xl py-3.5 font-bold text-white transition shadow-lg disabled:opacity-70 disabled:cursor-not-allowed ${
+                  isLocked
+                    ? 'bg-gray-400 shadow-gray-400/25'
+                    : 'bg-gradient-to-r from-[#5D4037] to-[#8D6E63] shadow-[#5D4037]/25 hover:shadow-xl hover:shadow-[#5D4037]/30'
+                }`}
+                whileHover={{ scale: isSubmitting || isLocked ? 1 : 1.02 }}
+                whileTap={{ scale: isSubmitting || isLocked ? 1 : 0.98 }}
               >
-                {isSubmitting ? (
+                {isLocked ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <ShieldAlert size={18} />
+                    Terkunci ({formatCountdown(lockoutSeconds)})
+                  </span>
+                ) : isSubmitting ? (
                   <span className="flex items-center justify-center gap-2">
                     <motion.span
                       className="inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full"

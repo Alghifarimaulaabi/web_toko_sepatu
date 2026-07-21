@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from "react";
+import { API_URL } from "@/lib/api";
 export interface Product {
   id: number;
   image: string;
@@ -160,17 +161,54 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setIsLoaded(true);
   }, []);
 
+  // Validasi produk di keranjang — hapus yang sudah tidak ada di backend
+  const hasValidated = useRef(false);
+  const validateCartProducts = useCallback(async () => {
+    if (hasValidated.current) return;
+    hasValidated.current = true;
+    try {
+      const res = await fetch(`${API_URL}/api/products`);
+      if (!res.ok) return;
+      const products = await res.json();
+      if (!Array.isArray(products)) return;
+      const validIds = new Set(products.map((p: any) => p.id));
+
+      setCart((prev) => {
+        const filtered = prev.filter((item) => validIds.has(item.product.id));
+        if (filtered.length !== prev.length) {
+          console.log(`Removed ${prev.length - filtered.length} deleted product(s) from cart`);
+        }
+        return filtered.length !== prev.length ? filtered : prev;
+      });
+
+      setCheckoutItems((prev) => {
+        const filtered = prev.filter((item) => validIds.has(item.product.id));
+        return filtered.length !== prev.length ? filtered : prev;
+      });
+    } catch (error) {
+      console.error("Failed to validate cart products", error);
+    }
+  }, []);
+
   // Initial load
   useEffect(() => {
     loadCart();
 
     const handleAuthChange = () => {
+      hasValidated.current = false;
       loadCart();
     };
 
     window.addEventListener("user-auth-change", handleAuthChange);
     return () => window.removeEventListener("user-auth-change", handleAuthChange);
   }, [loadCart]);
+
+  // Validate cart products after initial load
+  useEffect(() => {
+    if (isLoaded && cart.length > 0) {
+      validateCartProducts();
+    }
+  }, [isLoaded, validateCartProducts]);
 
   // Save cart whenever it changes
   useEffect(() => {
