@@ -13,7 +13,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-import { useRegister } from "@/app/hooks/useRegister";
+import { useRegister } from "@/features/auth/hooks/useRegister";
 
 // Animation variants
 const containerVariants = {

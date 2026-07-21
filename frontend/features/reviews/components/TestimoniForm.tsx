@@ -2,7 +2,7 @@
 
 import { Star, X, Loader2, Image as ImageIcon } from 'lucide-react';
 import RatingStars from './RatingStars';
-import { useTestimoniForm } from "@/app/hooks/useTestimoniForm";
+import { useTestimoniForm } from "@/features/reviews/hooks/useTestimoniForm";
 
 interface TestimoniFormProps {
   pesananId: number;

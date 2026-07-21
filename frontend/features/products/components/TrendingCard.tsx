@@ -6,10 +6,10 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Heart, ShoppingBag, Star, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { useWishlist } from "@/app/context/WishlistContext";
-import { useCart } from "@/app/context/CartContext";
+import { useWishlist } from "@/features/wishlist/context/WishlistContext";
+import { useCart } from "@/features/cart/context/CartContext";
 import { toast } from "sonner";
-import LoginModal from "./LoginModal";
+import LoginModal from "@/features/auth/components/LoginModal";
 
 export default function TrendingCard() {
   const { toggleWishlist, isInWishlist } = useWishlist();

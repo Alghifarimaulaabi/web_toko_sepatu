@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { API_URL } from "@/lib/api";
-import { useCart, cleanPrice } from "@/app/context/CartContext";
-import { getProfile } from "@/app/services/profileService";
+import { useCart, cleanPrice } from "@/features/cart/context/CartContext";
+import { getProfile } from "@/features/profile/services/profileService";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 

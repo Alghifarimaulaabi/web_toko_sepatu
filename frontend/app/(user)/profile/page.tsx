@@ -3,9 +3,9 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { User, MapPin, Phone, Mail, Camera, Save, Loader2, LogOut } from "lucide-react";
-import Navbar from "@/app/components/navbar";
-import Footer from "@/app/components/Footer";
-import { useProfile } from "@/app/hooks/useProfile";
+import Navbar from "@/features/common/components/navbar";
+import Footer from "@/features/common/components/Footer";
+import { useProfile } from "@/features/profile/hooks/useProfile";
 
 export default function ProfilePage() {
   const {

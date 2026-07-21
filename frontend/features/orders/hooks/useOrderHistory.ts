@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { getOrders, cancelOrder, Order } from "@/app/services/orderService";
-import { checkUserReview } from "@/app/services/testimoniService";
+import { getOrders, cancelOrder, Order } from "@/features/orders/services/orderService";
+import { checkUserReview } from "@/features/reviews/services/testimoniService";
 import { toast } from 'sonner';
 import { Package, Clock, Truck, CheckCircle, XCircle } from 'lucide-react';
 

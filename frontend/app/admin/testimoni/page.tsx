@@ -12,7 +12,7 @@ import {
   MessageSquare,
   StarHalf
 } from 'lucide-react';
-import { getAdminTestimoni, AdminTestimoniProduct } from "@/app/services/testimoniService";
+import { getAdminTestimoni, AdminTestimoniProduct } from "@/features/reviews/services/testimoniService";
 
 
 

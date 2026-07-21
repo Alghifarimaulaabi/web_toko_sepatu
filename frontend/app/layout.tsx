@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Outfit, Geist } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-import { WishlistProvider } from "./context/WishlistContext";
-import { CartProvider } from "./context/CartContext";
+import { WishlistProvider } from "@/features/wishlist/context/WishlistContext";
+import { CartProvider } from "@/features/cart/context/CartContext";
 import { cn } from "@/lib/utils";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});

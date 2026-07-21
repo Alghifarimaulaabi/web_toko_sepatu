@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Heart, ShoppingBag, Star, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { useWishlist } from "@/app/context/WishlistContext";
+import { useWishlist } from "@/features/wishlist/context/WishlistContext";
 
 interface CarouselProduct {
   id: number;

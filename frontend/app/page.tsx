@@ -1,9 +1,9 @@
-import Navbar from "./components/navbar";
-import Hero from "./components/hero";
-import TrendingCard from "./components/TrendingCard";
-import ProductCarousel from "./components/ProductCarousel";
-import WhyUs from "./components/WhyUs";
-import Footer from "./components/Footer";
+import Navbar from "@/features/common/components/navbar";
+import Hero from "@/features/common/components/hero";
+import TrendingCard from "@/features/products/components/TrendingCard";
+import ProductCarousel from "@/features/products/components/ProductCarousel";
+import WhyUs from "@/features/common/components/WhyUs";
+import Footer from "@/features/common/components/Footer";
 
 export default function Home() {
   return (

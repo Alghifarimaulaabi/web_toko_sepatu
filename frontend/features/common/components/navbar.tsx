@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { ShoppingCart, LogOut, Heart, History, Menu, X, User } from "lucide-react";
-import LogoutModal from "./LogoutModal";
-import { useWishlist } from "@/app/context/WishlistContext";
-import { useCart } from "@/app/context/CartContext";
+import LogoutModal from "@/features/auth/components/LogoutModal";
+import { useWishlist } from "@/features/wishlist/context/WishlistContext";
+import { useCart } from "@/features/cart/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavbar } from "@/app/hooks/useNavbar";
+import { useNavbar } from "@/features/common/hooks/useNavbar";
 import Image from "next/image";
 import { API_URL } from "@/lib/api";
 const Navbar = () => {

@@ -5,8 +5,8 @@ import Image from "next/image";
 import { Search, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useProductList } from "@/app/hooks/useProductList";
-import RatingStars from "./RatingStars";
+import { useProductList } from "@/features/products/hooks/useProductList";
+import RatingStars from "@/features/reviews/components/RatingStars";
 
 const SLIDES = [
   { id: 1, src: "/images/hero.jpeg", alt: "Koleksi Sepatu Premium 1" },

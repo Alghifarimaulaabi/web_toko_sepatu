@@ -13,7 +13,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 
-import { useLogin } from "@/app/hooks/useLogin";
+import { useLogin } from "@/features/auth/hooks/useLogin";
 
 // Animation variants
 const containerVariants = {

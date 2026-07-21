@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { getProfile, updateProfile, UserProfile } from "@/app/services/profileService";
+import { getProfile, updateProfile, UserProfile } from "@/features/profile/services/profileService";
 import { toast } from "sonner";
 
 export const useProfile = () => {

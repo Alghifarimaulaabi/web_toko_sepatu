@@ -16,9 +16,9 @@ import {
   X,
   Trash2
 } from 'lucide-react';
-import { getAllUsersAdmin, deleteUserAdmin, UserProfile } from "@/app/services/profileService";
-import { getAllOrdersAdmin, updateOrderStatusAdmin, Order } from "@/app/services/orderService";
-import { formatRupiah } from "@/app/context/CartContext";
+import { getAllUsersAdmin, deleteUserAdmin, UserProfile } from "@/features/profile/services/profileService";
+import { getAllOrdersAdmin, updateOrderStatusAdmin, Order } from "@/features/orders/services/orderService";
+import { formatRupiah } from "@/features/cart/context/CartContext";
 import Image from 'next/image';
 
 const STATUS_MAP = {

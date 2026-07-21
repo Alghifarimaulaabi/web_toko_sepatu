@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Building2, Wallet, CreditCard } from "lucide-react";
-import { useCart, cleanPrice } from "@/app/context/CartContext";
+import { useCart, cleanPrice } from "@/features/cart/context/CartContext";
 
 export type PaymentMethod = "transfer" | "ewallet" | "cod";
 

@@ -1,7 +1,7 @@
 "use client";
-import { useProductList } from "@/app/hooks/useProductList";
-import Navbar from "@/app/components/navbar";
-import Footer from "@/app/components/Footer";
+import { useProductList } from "@/features/products/hooks/useProductList";
+import Navbar from "@/features/common/components/navbar";
+import Footer from "@/features/common/components/Footer";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag, Star, Sparkles, Search, ChevronLeft, ChevronRight } from "lucide-react";

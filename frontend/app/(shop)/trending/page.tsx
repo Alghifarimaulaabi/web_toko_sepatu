@@ -1,15 +1,15 @@
 "use client";
 import { useState } from "react";
-import { useProductList } from "@/app/hooks/useProductList";
-import Navbar from "@/app/components/navbar";
-import Footer from "@/app/components/Footer";
+import { useProductList } from "@/features/products/hooks/useProductList";
+import Navbar from "@/features/common/components/navbar";
+import Footer from "@/features/common/components/Footer";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag, Star, TrendingUp, Search, ChevronLeft, ChevronRight } from "lucide-react";
-import { useWishlist } from "@/app/context/WishlistContext";
-import { useCart } from "@/app/context/CartContext";
+import { useWishlist } from "@/features/wishlist/context/WishlistContext";
+import { useCart } from "@/features/cart/context/CartContext";
 import { toast } from "sonner";
-import LoginModal from "@/app/components/LoginModal";
+import LoginModal from "@/features/auth/components/LoginModal";
 
 export default function TrendingPage() {
   const { toggleWishlist, isInWishlist } = useWishlist();

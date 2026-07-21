@@ -1,7 +1,7 @@
 "use client";
 import { API_URL } from "@/lib/api";
 
-import { useOrderHistory } from "@/app/hooks/useOrderHistory";
+import { useOrderHistory } from "@/features/orders/hooks/useOrderHistory";
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -22,12 +22,12 @@ import {
   AlertTriangle,
   X
 } from 'lucide-react';
-import Navbar from "@/app/components/navbar";
-import Footer from "@/app/components/Footer";
-import { getOrders, cancelOrder, Order } from "@/app/services/orderService";
-import { formatRupiah } from "@/app/context/CartContext";
-import TestimoniForm from "@/app/components/TestimoniForm";
-import { checkUserReview } from "@/app/services/testimoniService";
+import Navbar from "@/features/common/components/navbar";
+import Footer from "@/features/common/components/Footer";
+import { getOrders, cancelOrder, Order } from "@/features/orders/services/orderService";
+import { formatRupiah } from "@/features/cart/context/CartContext";
+import TestimoniForm from "@/features/reviews/components/TestimoniForm";
+import { checkUserReview } from "@/features/reviews/services/testimoniService";
 import { toast } from 'sonner';
 
 

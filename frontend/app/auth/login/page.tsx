@@ -1,4 +1,4 @@
-import Form from "@/app/components/login/form"
+import Form from "@/features/auth/components/form"
 
 const Login = () => {
     return(

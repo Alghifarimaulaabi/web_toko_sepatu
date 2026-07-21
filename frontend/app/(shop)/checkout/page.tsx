@@ -1,5 +1,5 @@
 "use client";
-import { useCheckout } from "@/app/hooks/useCheckout";
+import { useCheckout } from "@/features/cart/hooks/useCheckout";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -12,9 +12,9 @@ import {
   Loader2,
   ChevronRight,
 } from "lucide-react";
-import Navbar from "@/app/components/navbar";
-import Footer from "@/app/components/Footer";
-import { formatRupiah, cleanPrice, type CartItem } from "@/app/context/CartContext";
+import Navbar from "@/features/common/components/navbar";
+import Footer from "@/features/common/components/Footer";
+import { formatRupiah, cleanPrice, type CartItem } from "@/features/cart/context/CartContext";
 
 type PaymentMethod = "midtrans" | "cod";
 

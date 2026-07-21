@@ -3,9 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Heart, ShoppingBag, Star, ArrowLeft, Trash2 } from "lucide-react";
-import Navbar from "@/app/components/navbar";
-import Footer from "@/app/components/Footer";
-import { useWishlist } from "@/app/context/WishlistContext";
+import Navbar from "@/features/common/components/navbar";
+import Footer from "@/features/common/components/Footer";
+import { useWishlist } from "@/features/wishlist/context/WishlistContext";
 
 export default function WishlistPage() {
   const { wishlist, toggleWishlist } = useWishlist();

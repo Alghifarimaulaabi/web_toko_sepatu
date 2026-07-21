@@ -1,6 +1,6 @@
 "use client";
 
-import { useKeranjang } from "@/app/hooks/useKeranjang";
+import { useKeranjang } from "@/features/cart/hooks/useKeranjang";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,10 +18,10 @@ import {
   Tag,
   ChevronDown,
 } from "lucide-react";
-import Navbar from "@/app/components/navbar";
-import Footer from "@/app/components/Footer";
-import LoginModal from "@/app/components/LoginModal";
-import { useCart, formatRupiah, cleanPrice } from "@/app/context/CartContext";
+import Navbar from "@/features/common/components/navbar";
+import Footer from "@/features/common/components/Footer";
+import LoginModal from "@/features/auth/components/LoginModal";
+import { useCart, formatRupiah, cleanPrice } from "@/features/cart/context/CartContext";
 
 export default function KeranjangPage() {
   const {

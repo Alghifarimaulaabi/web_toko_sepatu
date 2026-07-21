@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { API_URL } from "@/lib/api";
-import { getTestimoniByProduk, Testimoni } from "@/app/services/testimoniService";
-import { useWishlist } from "@/app/context/WishlistContext";
-import { useCart } from "@/app/context/CartContext";
+import { getTestimoniByProduk, Testimoni } from "@/features/reviews/services/testimoniService";
+import { useWishlist } from "@/features/wishlist/context/WishlistContext";
+import { useCart } from "@/features/cart/context/CartContext";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
